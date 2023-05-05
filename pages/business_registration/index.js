@@ -1,227 +1,140 @@
-import React, { useState, useEffect } from "react";
-
+import React from 'react';
 import Layout from '../../components/layout/Layout';
 import CounterUp from "../../components/elements/Counterup"
+import { useState } from 'react';
+import { useRouter } from 'next/router';
 
-import FirstForm from "/components/business_registration/FirstForm.jsx";
-import SecondForm from "/components/business_registration/SecondForm.jsx";
-import ThirdForm from "/components/business_registration/ThirdForm.jsx";
-import ForthForm from "/components/business_registration/ForthForm.jsx";
+const BusinessRegistration = () => {
+    const [selectedOption, setSelectedOption] = useState(null);
+    const [selectedType, setSelectedType] = useState(null);
+    const [selectedDistrict, setSelectedDistrict] = useState("");
+    const router = useRouter();
 
-import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
+    const handleOptionChange = (e) => {
+        setSelectedOption(e.target.value);
+    }
 
-const BusinessRegistration = ({ session }) => {
-    const supabase = useSupabaseClient()
-    const user = useUser()
+    const handleTypeChange = (e) => {
+        setSelectedType(e.target.value);
+    }
     
-    const formList = ["FirstForm", "SecondForm", "ThirdForm", 'ForthForm'];
-    const formLength = formList.length;
-    const [page, setPage] = useState(0);
-    const handlePrev = () => {
-        setPage(page === 0 ? formLength - 1 : page - 1);
-    };
-    const handleNext = () => {
-        setPage(page === formLength - 1 ? 0 : page + 1);
-    };
-    const initialValues = {
-        // name: "",
-        
-    };
-    const [values, setValues] = useState(initialValues);
-    const handleForms = () => {
-        switch (page) {
-          case 0: {
-            return (
-              <div>
-                <FirstForm formValues={values} onChange={onChange}></FirstForm>
-              </div>
-            );
-          }
-          case 1: {
-            return (
-              <SecondForm
-                formValues={values}
-                onChange={onChange}
-                option={states}
-              ></SecondForm>
-            );
-          }
-          case 2: {
-            return (
-              <ThirdForm
-                formValues={values}
-                onChange={onChange}
-                option={states}
-              ></ThirdForm>
-            );
-          }
-          case 3: {
-            return <ForthForm formValues={values} onChange={onChange}></ForthForm>;
-          }
-          default:
-            return null;
-        }
-    };
-    const states = [
-        { id: "0", name: "Paris" },
-        { id: "1", name: "London" },
-        { id: "2", name: "Berlin" },
-        { id: "3", name: "Warsaw" },
-    ];
-
-    const handleSubmit = async (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
-        const response = await setTimeout(() => {
-          console.log("form", values);
-        }, 2000);
-        return response;
-    };
-
-    const onChange = (e) => {
-        const { name, value, type, checked } = e.target;
-        setValues({ ...values, [name]: type === "checkbox" ? checked : value });
-    };
-    
-    const setForm = (e) => {
-        const name = e.target.innerText;
-        switch (name) {
-            case "Company Info": {
-            return setPage(0);
-            }
-            case "Shareholders Info": {
-            return setPage(1);
-            }
-            case "Directors Info": {
-            return setPage(2);
-            }
-            case "Documents Required": {
-                return setPage(3);
-                }
-            default:
-            setPage(0);
+        
+        if (selectedOption === 'central' && selectedType) {
+            router.push(`/business_registration/form?selectedOption=${selectedOption}&selectedType=${selectedType}`);
+        } else if (selectedOption === 'district' && selectedDistrict !== '' && selectedType) {
+            router.push(`/business_registration/form?selectedOption=${selectedOption}&selectedDistrict=${selectedDistrict}&selectedType=${selectedType}`);
         }
-    };
-      
+    }
+    
     return (
         <>
             <Layout>
-                <section className="pt-40 pb-12 -mt-24 bg-blueGray-100">
-                    <div className="container">
-                        <h1 className="mb-5 text-2xl font-bold lg:text-5xl wow animate__animated animate__fadeIn animated">Business Registration</h1>
-                        <ul className="flex pb-12 text-sm text-gray-500 lg:text-sm wow animate__animated animate__fadeIn animated">
-                            <li className="inline-flex items-center">
-                                <a href="#" className="text-gray-800 hover:text-blue-500">
-                                    Home
-                                </a>
-                                <svg fill="currentColor" viewBox="0 0 20 20" className="w-auto h-5 text-gray-300">
-                                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-                                </svg>
-                            </li>
-                            <li className="inline-flex items-center">
-                                <a href="#" className="text-gray-800 hover:text-blue-500">
-                                    Registrations
-                                </a>
-                                <svg fill="currentColor" viewBox="0 0 20 20" className="w-auto h-5 text-gray-300">
-                                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-                                </svg>
-                            </li>
-                            <li className="inline-flex items-center text-gray-400">
-                                <span>Business Registrstion</span>
-                            </li>
-                        </ul>
-                    </div>
-                </section>
-                <div className="container py-4 mx-auto">
-               
-                    <ul className="flex justify-between w-full">
-                        <li
-                        onClick={setForm}
-                        className={
-                            page === 0 ? "bg-blueGray-50 w-2/6 rounded-lg  " : "bg: transparent"
-                        }
-                        >
-                            <div className="flex items-center ">
-                                <span className="flex items-center px-6 py-4 text-sm font-medium">
-                                    <span className="flex items-center justify-center flex-shrink-0 w-10 h-10 border-2 border-gray-300 rounded-full group-hover:border-gray-400">
-                                        <span className="text-gray-500 group-hover:text-gray-900">1</span>
-                                    </span>
-                                    <span className="ml-4 text-sm font-medium text-gray-500 group-hover:text-gray-900">Company Info {" "} </span>
-                                </span>
+                <section className="px-4 py-12 bg-gray-100">
+                    <div className="container mx-auto">
+                        <h1 className="mb-4 text-3xl font-bold text-gray-800">Welcome to our registration portal</h1>
+                        <p className="mb-6 text-gray-700">Please select whether you want to register your business at the central or district level:</p>
+                        <form onSubmit={handleSubmit}>
+                            <div className="flex items-center mb-4">
+                                <input
+                                    type="radio"
+                                    id="central"
+                                    name="registration-level"
+                                    value="central"
+                                    checked={selectedOption === 'central'}
+                                    onChange={handleOptionChange}
+                                    className="mr-2"
+                                />
+                                <label htmlFor="central" className="text-gray-800 cursor-pointer">Central</label>
                             </div>
-                        </li>
-                        <li
-                        onClick={setForm}
-                        className={
-                            page === 1 ? "bg-blueGray-50  w-2/6 rounded-lg" : "bg: transparent "
-                        }
-                        >
-                            <div className="flex items-center">
-                                <span className="flex items-center px-6 py-4 text-sm font-medium">
-                                    <span className="flex items-center justify-center flex-shrink-0 w-10 h-10 border-2 border-gray-300 rounded-full group-hover:border-gray-400">
-                                        <span className="text-gray-500 group-hover:text-gray-900">2</span>
-                                    </span>
-                                    <span className="ml-4 text-sm font-medium text-gray-500 group-hover:text-gray-900">Shareholders Info {" "} </span>
-                                </span>
+                            <div className="flex items-center mb-4">
+                                <input
+                                    type="radio"
+                                    id="district"
+                                    name="registration-level"
+                                    value="district"
+                                    checked={selectedOption === 'district'}
+                                    onChange={handleOptionChange}
+                                    className="mr-2"
+                                />
+                                <label htmlFor="district" className="text-gray-800 cursor-pointer">Districts</label>
                             </div>
-                        </li>
-                        <li
-                        onClick={setForm}
-                        className={
-                            page === 2 ? "bg-blueGray-50 w-2/6 rounded-lg" : "bg: transparent"
-                        }
-                        >
-                            <div className="flex items-center">
-                                <span className="flex items-center px-6 py-4 text-sm font-medium">
-                                    <span className="flex items-center justify-center flex-shrink-0 w-10 h-10 border-2 border-gray-300 rounded-full group-hover:border-gray-400">
-                                        <span className="text-gray-500 group-hover:text-gray-900">3</span>
-                                    </span>
-                                    <span className="ml-4 text-sm font-medium text-gray-500 group-hover:text-gray-900">Directors Info {" "} </span>
-                                </span>
+                            {selectedOption === 'district' && (
+                            <div className="p-4 mt-6 bg-white shadow-md">
+                                <h2 className="mb-2 text-lg font-bold text-gray-800">District Level Registration Information</h2>
+                                <p className="mb-4 text-gray-700">At the district level, the District Economic Committee is responsible for collecting a register of all businesses operating within the district. The Committee accepts submissions for registration, and once verified, compiles a list of registered businesses. Investors are required to register below the district level and may be charged registration fees based on the types of layers.</p>
+                                <h3 className="mb-2 text-base font-semibold leading-7 text-gray-900">Select your district:</h3>
+                                <select
+                                    className="block w-full px-3 py-2 leading-5 text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 focus:shadow-outline-blue focus:ring-blue-300"
+                                    value={selectedDistrict}
+                                    onChange={(e) => setSelectedDistrict(e.target.value)}
+                                >
+                                    <option value="">-- Select District --</option>
+                                    <option value="district1">District 1</option>
+                                    <option value="district2">District 2</option>
+                                    <option value="district3">District 3</option>
+                                    <option value="district4">District 4</option>
+                                    <option value="district5">District 5</option>
+                                    <option value="district6">District 6</option>
+                                    <option value="district7">District 7</option>
+                                </select>
                             </div>
-                        </li>
-                        <li
-                        onClick={setForm}
-                        className={
-                            page === 3 ? "bg-blueGray-50 w-2/6 rounded-lg" : "bg: transparent"
-                        }
-                        >
-                            <div className="flex items-center">
-                            <span className="flex items-center px-6 py-4 text-sm font-medium">
-                                    <span className="flex items-center justify-center flex-shrink-0 w-10 h-10 border-2 border-gray-300 rounded-full group-hover:border-gray-400">
-                                        <span className="text-gray-500 group-hover:text-gray-900">4</span>
-                                    </span>
-                                    <span className="ml-4 text-sm font-medium text-gray-500 group-hover:text-gray-900">Documents Required {" "} </span>
-                                </span>
-                            </div>
-                        </li>
-                    </ul>
-                    <div className="flex items-center justify-end mt-2 gap-x-6">{handleForms()}</div>
-                        <div className="flex items-center justify-end mt-2 gap-x-6">
-                            <button
-                            onClick={handlePrev}
-                            className="text-sm font-semibold leading-6 text-gray-900"
-                            disabled={page === 0}
-                            >
-                            Prev
-                            </button>
-                            {page === 3 ? (
-                            <button
-                                onClick={handleSubmit}
-                                className="px-3 py-2 text-sm font-semibold text-white rounded-md shadow-sm btn-primary hover-up-2 "
-                            >
-                                Submit
-                            </button>
-                            ) : (
-                            <button
-                                onClick={handleNext}
-                                className="px-3 py-2 text-sm font-semibold text-white rounded-md shadow-sm btn-primary hover-up-2 "
-                            >
-                                Next
-                            </button>
                             )}
-                        </div>
+                            {selectedOption && (
+                            <div className="p-4 mt-6 bg-white shadow-md">
+                                <h2 className="mb-2 text-lg font-bold text-gray-800">Business Registration Type</h2>
+                                <p className="mb-6 text-gray-700">Please select the type of business registration you would like to proceed with:</p>
+                                <div className="flex items-center mb-4">
+                                    <input
+                                        type="radio"
+                                        id="small"
+                                        name="business-type"
+                                        value="small"
+                                        checked={selectedType === 'small'}
+                                        onChange={handleTypeChange}
+                                        className="mr-2"
+                                    />
+                                    <label htmlFor="small" className="text-gray-800 cursor-pointer">Small Business Registration</label>
+                                </div>
+                                <div className="flex items-center mb-4">
+                                    <input
+                                        type="radio"
+                                        id="medium"
+                                        name="business-type"
+                                        value="medium"
+                                        checked={selectedType === 'medium'}
+                                        onChange={handleTypeChange}
+                                        className="mr-2"
+                                    />
+                                    <label htmlFor="medium" className="text-gray-800 cursor-pointer">Medium Business Registration</label>
+                                </div>
+                                <div className="flex items-center mb-4">
+                                    <input
+                                        type="radio"
+                                        id="large"
+                                        name="business-type"
+                                        value="large"
+                                        checked={selectedType === 'large'}
+                                        onChange={handleTypeChange}
+                                        className="mr-2"
+                                    />
+                                    <label htmlFor="large" className="text-gray-800 cursor-pointer">Large Business Registration</label>
+                                </div>
+                            </div>
+                            )}
+                            <div className='py-4'>
+                                <button
+                                    type="submit"
+                                    disabled={!selectedOption || !selectedType}
+                                    className="px-4 py-2 font-bold text-white bg-blue-500 rounded hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                                >
+                                    Continue
+                                </button>
+                            </div>
+                        </form>   
                     </div>
-                
+                </section>                 
             </Layout>
         </>
     );

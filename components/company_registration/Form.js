@@ -972,8 +972,8 @@ export default function RegistrationForm({uid}) {
                     )}
 
                     {step === 5 && (
-                        //Required Documents & complete
-                            <div className="w-full space-y-12">
+                    //Required Documents & complete
+                        <div className="w-full space-y-12">
                                 <form onSubmit={handleSubmit}>
                                     <div className="grid grid-cols-3 gap-3 py-4">
                                         <div className="col-span-3 sm:col-span-2 sm:grid sm:grid-cols-1 sm:items-start sm:gap-1">
@@ -1070,7 +1070,7 @@ export default function RegistrationForm({uid}) {
                         </div>
                     )}
                     {step === 6 && (
-                        //Review
+                    //Review
                         <div class="container mx-auto px-4">
                             <div class="sm:max-w-lg md:max-w-xl lg:max-w-4xl xl:max-w-6xl mx-auto">
                                 <div class="space-y-12">

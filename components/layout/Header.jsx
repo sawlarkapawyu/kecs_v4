@@ -64,14 +64,14 @@ const Header = ({handleHidden}) => {
                                     <li>
                                         <Link href="/company_registration" legacyBehavior>
                                             <a className="text-sm menu-sub-item text-blueGray-600 hover:text-blueGray-500">
-                                                Company/Business Registration
+                                                Company Registration
                                             </a>
                                         </Link>
                                     </li>
                                     <li>
                                         <Link href="/business_registration" legacyBehavior>
                                             <a className="text-sm menu-sub-item text-blueGray-600 hover:text-blueGray-500">
-                                                Small/Enterprises Registration
+                                                Business Registration
                                             </a>
                                         </Link>
                                     </li>
