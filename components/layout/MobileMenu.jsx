@@ -80,10 +80,28 @@ const MobileMenu = ({ hiddenClass, handleRemove }) => {
                                     </li>
                                 </ul>
                             </li>
-                            <li className="mb-1">
-                                <Link href="/legal_resources" legacyBehavior>
-                                    <a className="block p-4 text-sm text-blueGray-500 hover:bg-blue-50 hover:text-blue-500">Legal Resources</a>
+                            <li className={isActive.key == 3 ? "mb-1 menu-item-has-children rounded-xl active" : "mb-1 menu-item-has-children rounded-xl"} onClick={() => handleToggle(3)}>
+                                <span className="menu-expand">+</span>
+                                <Link href="#" legacyBehavior>
+                                    <a className="block p-4 text-sm text-blueGray-500 hover:bg-blue-50 hover:text-blue-500">Resources</a>
                                 </Link>
+                                <ul className={isActive.key == 3 ? "dropdown pl-5" : "hidden"}>
+                                    <li>
+                                        <Link href="/resources/legal_document" legacyBehavior>
+                                            <a className="block p-3 text-sm text-blueGray-500 hover:bg-blue-50 hover:text-blue-500">Legal Resources</a>
+                                        </Link>
+                                    </li>
+                                    <li>
+                                        <Link href="#" legacyBehavior>
+                                            <a className="block p-3 text-sm text-blueGray-500 hover:bg-blue-50 hover:text-blue-500">Announcements</a>
+                                        </Link>
+                                    </li>
+                                    <li>
+                                        <Link href="#" legacyBehavior>
+                                            <a className="block p-3 text-sm text-blueGray-500 hover:bg-blue-50 hover:text-blue-500">Statements</a>
+                                        </Link>
+                                    </li>
+                                </ul>
                             </li>
                             <li className="mb-1">
                                 <Link href="/user_guides" legacyBehavior>

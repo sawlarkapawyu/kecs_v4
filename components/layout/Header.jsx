@@ -105,14 +105,38 @@ const Header = ({handleHidden}) => {
                                 </ul>
                                 
                             </li>
-                            
-                            <li className="pt-4 pb-4">
-                                <Link href="/resources/legal_document" legacyBehavior>
+
+                            <li className="relative pt-4 pb-4 group has-child">
+                                <Link href="#" legacyBehavior>
                                     <a className="text-sm font-semibold text-blueGray-600 hover:text-blueGray-500">
-                                        Legal Resources
+                                        Resources
                                     </a>
                                 </Link>
+                                <ul className="drop-down-menu min-w-200">
+                                    <li>
+                                        <Link href="/resources/legal_document" legacyBehavior>
+                                            <a className="text-sm menu-sub-item text-blueGray-600 hover:text-blueGray-500">
+                                                Legal Resources
+                                            </a>
+                                        </Link>
+                                    </li>
+                                    <li>
+                                        <Link href="#" legacyBehavior>
+                                            <a className="text-sm menu-sub-item text-blueGray-600 hover:text-blueGray-500">
+                                                Announcements
+                                            </a>
+                                        </Link>
+                                    </li>
+                                    <li>
+                                        <Link href="#" legacyBehavior>
+                                            <a className="text-sm menu-sub-item text-blueGray-600 hover:text-blueGray-500">
+                                                Statements
+                                            </a>
+                                        </Link>
+                                    </li>
+                                </ul>
                             </li>
+                            
                             <li className="pt-4 pb-4">
                                 <Link href="/faqs" legacyBehavior>
                                     <a className="text-sm font-semibold text-blueGray-600 hover:text-blueGray-500">
