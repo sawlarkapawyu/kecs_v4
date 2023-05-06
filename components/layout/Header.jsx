@@ -107,7 +107,7 @@ const Header = ({handleHidden}) => {
                             </li>
                             
                             <li className="pt-4 pb-4">
-                                <Link href="/legal_resources" legacyBehavior>
+                                <Link href="/resources/legal_document" legacyBehavior>
                                     <a className="text-sm font-semibold text-blueGray-600 hover:text-blueGray-500">
                                         Legal Resources
                                     </a>
@@ -146,7 +146,7 @@ const Header = ({handleHidden}) => {
                                 </a>
                             </Link>
                              )} */}
-                            <select id="locale-select" style={{border: 'none', outline: 'none', backgroundColor: 'transparent', padding: 20}}>
+                            <select id="locale-select" style={{border: 'none', outline: 'none', backgroundColor: 'transparent', padding: 30}}>
                                 <option value="en">English</option>
                                 <option value="mm">Myanmar</option>
                             </select>
