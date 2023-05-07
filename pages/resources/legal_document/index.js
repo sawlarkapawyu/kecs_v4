@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useRouter } from 'next/router';
 import DatePicker from "react-datepicker";
-import { Download } from 'heroicons-react';
+import { DocumentDownload, Download } from 'heroicons-react';
 
 const LegalDocumentSearch = () => {
     const router = useRouter();

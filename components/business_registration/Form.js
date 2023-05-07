@@ -2,10 +2,57 @@ import React, { useState, useEffect } from "react";
 import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useRouter } from 'next/router';
 import Select from 'react-select';
-import { UploadFileToStorage } from '/src/utilities/storage.js'
+import { UploadFileToStorage, getImage } from '/src/utilities/storage.js'
 
 export default function RegistrationForm({uid}) {
+    const [step, setStep] = useState(1);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+    const [refresh, setRefresh] = useState(false)
+    const router = useRouter();
+    const supabase = useSupabaseClient();
+    const user = useUser();
+    // const user = supabase.auth.user()
 
+
+    //Fetch Selected Value
+    const selectedOption = router.query.selectedOption;
+    const selectedDistrict = router.query.selectedDistrict;
+    const selectedType = router.query.selectedType;
+    
+    //Business Start
+    const [exist_reg_id, setExistRegId] = useState('');
+    const [type, setType] = useState('');
+    const [establishment, setEstablishment] = useState('');
+    const [operation_area, setOperationArea] = useState('');
+    const [no_worker, setNoWorker] = useState('');
+    const [addressStreet, setAddressStreet] = useState('');
+    const [addressState, setAddressState] = useState('');
+    const [addressCountry, setAddressCountry] = useState('');
+    const [addressZip, setAddressZip] = useState('');
+    const [addressCity, setAddressCity] = useState('');
+    const [phone, setPhone] = useState('');
+    const [email, setEmail] = useState('');
+    const [status, setStatus] = useState('Pending');
+
+    //For review used
+    const [business, setBusiness] = useState(null);
+    const [isAgreed, setIsAgreed] = useState(false);
+    
+    //Owner Start
+    const [owner_name_mm, setOwnerNameMM] = useState('');
+    const [owner_name_eng, setOwnerNameEng] = useState('');
+    const [national_id, setNationalID] = useState('');
+    const [passport_no, setPassportNo] = useState('');
+    const [addressStreetOwner, setAddressStreetOwner] = useState('');
+    const [addressStateOwner, setAddressStateOwner] = useState('');
+    const [addressCountryOwner, setAddressCountryOwner] = useState('');
+    const [addressZipOwner, setAddressZipOwner] = useState('');
+    const [addressCityOwner, setAddressCityOwner] = useState('');
+    const [phoneOwner, setPhoneOwner] = useState('');
+    const [emailOwner, setEmailOwner] = useState('');
+    //Owner End
+    
     //Additional Strat
     const [selectedBuildingOption, setSelectedBuildingOption] = useState(null);
     const [buildingLandlordName, setBuildingLandlordName] = useState('');
@@ -67,68 +114,22 @@ export default function RegistrationForm({uid}) {
     //Additional End
     
     //Applicant Start
-    const [photo, setPhoto] = useState(null)
+    const [applicant_name, setApplicantName] = useState('');
+    const [applicant_national_id, setApplicantNationalId] = useState('');
+    const [applicant_passport_no, setApplicantPassportNo] = useState('');
+    const [addressStreetApplicant, setAddressStreetApplicant] = useState('');
+    const [addressStateApplicant, setAddressStateApplicant] = useState('');
+    const [addressCountryApplicant, setAddressCountryApplicant] = useState('');
+    const [addressZipApplicant, setAddressZipApplicant] = useState('');
+    const [addressCityApplicant, setAddressCityApplicant] = useState('');
+    const [phoneApplicant, setPhoneApplicant] = useState('');
+    const [emailApplicant, setEmailApplicant] = useState('');
+
     const [signature, setSignature] = useState(null)
+    const [signatureUri, setSignatureUri] = useState('');
 
-    const handleSubmit1 = async () => {
-        try {
-            setLoading(true);
-            //File upload
-            let signatureUri = ''
-            if (signature !== null) {
-                let result = await UploadFileToStorage(
-                supabase,
-                'applicant_signature',
-                signature
-                )
-                if (result.success) {
-                signatureUri = result.data
-                }
-            }
-            
-            // Insert Company
-            
+   //End
 
-            
-        } catch (error) {
-            console.error(error);
-            setErrorMessage([error.message]);
-            } finally {
-                setLoading(false);
-            }
-    };
-
-    //End
-    const [directors, setDirectors] = useState([{ name: "", national_id: "", passport_no: "" }]);
-    const [businesses, setBusinesses] = useState([{ name: "" }]);
-    const [docUrls, setDocUrls] = useState({ doc1: null, doc2: null, doc3: null });
-    const [uploading, setUploading] = useState(false);
-
-    const [step, setStep] = useState(1);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
-    const router = useRouter();
-    const supabase = useSupabaseClient();
-    const user = useUser();
-
-    //Fetch Selected Value
-    const selectedOption = router.query.selectedOption;
-    const selectedDistrict = router.query.selectedDistrict;
-
-    //Comapnies Start
-    const [name, setName] = useState('');
-    const [addressStreet, setAddressStreet] = useState('');
-    const [addressState, setAddressState] = useState('');
-    const [addressCountry, setAddressCountry] = useState('');
-    const [addressZip, setAddressZip] = useState('');
-    const [addressCity, setAddressCity] = useState('');
-    const [phone, setPhone] = useState('');
-    const [email, setEmail] = useState('');
-    const [status, setStatus] = useState('Pending');
-
-    const [companies, setCompany] = useState(null);
-    const [isAgreed, setIsAgreed] = useState(false);
-    
     // Address Dropdown (Country/State)
     const countryStateOptions = {
         Myanmar: ["Yangon", "Mandalay", "Naypyidaw", "Bago"],
@@ -138,106 +139,6 @@ export default function RegistrationForm({uid}) {
         Mexico: ["Mexico City", "Cancun", "Tijuana"]
     };
     //Companies End
-
-
-    //Director Start
-    const handleDirectorInputChange = (e, index) => {
-        const { name, value } = e.target;
-        const list = [...directors];
-        list[index][name] = value;
-        setDirectors(list);
-    };
-
-    const handleDirectorRemove = (index) => {
-        const list = [...directors];
-        list.splice(index, 1);
-        setDirectors(list);
-    };
-
-    const handleDirectorAdd = () => {
-        setDirectors([...directors, { name: "", national_id: "", passport_no: "" }]);
-    };
-    //Director End
-
-    //BusinesList Start
-    const handleBusinessInputChange = (e, index) => {
-        const { name, value } = e.target;
-        const list = [...businesses];
-        list[index][name] = value;
-        setBusinesses(list);
-    };
-
-    const handleBusinessRemove = (index) => {
-        const list = [...businesses];
-        list.splice(index, 1);
-        setBusinesses(list);
-    };
-
-    const handleBusinessAdd = () => {
-        setBusinesses([...businesses, { name: "" }]);
-    };
-    //BusinessList End
-    
-    //Required Documents Start
-    const uploadDocument = async (event, docNum) => {
-        try {
-          setUploading(true);
-      
-          if (!event.target.files || event.target.files.length === 0) {
-            throw new Error('You must select a document to upload.');
-          }
-      
-          const file = event.target.files[0];
-          const fileExt = file.name.split('.').pop();
-          const fileName = `${uid}.${fileExt}`;
-      
-          let { error: uploadError, data: uploadedFile } = await supabase.storage
-            .from('documents')
-            .upload(`company/${file.name}`, file);
-      
-          if (uploadError) {
-            throw uploadError;
-          }
-      
-          const path = uploadedFile.path;
-          setDocUrls((prevDocUrls) => ({ ...prevDocUrls, [docNum]: path }));
-          return path;
-        } catch (error) {
-          alert('Error uploading document!');
-          console.log(error);
-        } finally {
-          setUploading(false);
-        }
-    };
-    
-    const downloadDocument = async (path, docNum) => {
-        try {
-          const { data, error } = await supabase.storage.from('documents').download(path);
-          if (error) {
-            throw error;
-          }
-          const url = URL.createObjectURL(data);
-          setDocUrls((prevDocUrls) => ({ ...prevDocUrls, [docNum]: url }));
-        } catch (error) {
-          console.log('Error downloading document: ', error);
-        }
-    };
-    
-    useEffect(() => {
-    if (docUrls.doc1) downloadDocument(docUrls.doc1, 'doc1');
-    }, [docUrls.doc1]);
-    
-    useEffect(() => {
-    if (docUrls.doc2) downloadDocument(docUrls.doc2, 'doc2');
-    }, [docUrls.doc2]);
-    
-    useEffect(() => {
-    if (docUrls.doc3) downloadDocument(docUrls.doc3, 'doc3');
-    }, [docUrls.doc3]);
-    
-    const handleUploadDoc1 = (event) => uploadDocument(event, 'doc1');
-    const handleUploadDoc2 = (event) => uploadDocument(event, 'doc2');
-    const handleUploadDoc3 = (event) => uploadDocument(event, 'doc3');
 
     const handleComplete = () => {
         if (isAgreed) {
@@ -254,7 +155,7 @@ export default function RegistrationForm({uid}) {
 
     //For Validation in handleNext
     const [errorMessage, setErrorMessage] = useState({
-        name: '',
+        
         addressStreet: '',
         addressCity: '',
         addressState: '',
@@ -269,58 +170,50 @@ export default function RegistrationForm({uid}) {
         try {
           setLoading(true);
             
-          switch (step) {
-            case 1:
-                // Validation criteria
+            switch (step) {
+                case 1:
+                    // Validation criteria for Business Owner
 
-            setStep(step + 1);
-            break
+                setStep(step + 1);
+                break
+                    
+                case 2:
+                    // Validation criteria for Business Info
                 
-            case 2:
-                // validate shareholders form fields here
-              
-              setStep(step + 1);
-              break;
-      
-            case 3:
-            // validate directors form fields here
-            
-              setStep(step + 1);
-              break;
-      
-            case 4:
-              // validate businesses form fields here
+                setStep(step + 1);
+                break;
+        
+                case 3:
+                // Validation criteria for Business Additional
+                
+                setStep(step + 1);
+                break;
+        
+                case 4:
+                // Validation criteria for Business Appliciant
 
-              setStep(step + 1);
-              break;
-      
-            case 5:
-              // validate required documents here
-              
-
-              setStep(step + 1);
-              break;
-              
-            case 6:
+                setStep(step + 1);
+                break;
+        
+                case 5:
+                //Review
+                
+                //complete
                 if (isAgreed) {
                     console.log("Process completed successfully");
                     setStep(step + 1);
-                  } else {
+                } else {
                     console.log("Please agree to the terms to complete the process");
-                  }
-              break;
-            
-            case 7:
-
+                }
+                break;
+                
+                case 6:
                 setStep(step + 1);
-            // validate additional step here
-            // ...
+                break;
 
-            break;
-      
             default:
-              break;
-          }
+            break;
+            }
         }   catch (error) {
             console.error(error.message);
         } finally {
@@ -338,13 +231,16 @@ export default function RegistrationForm({uid}) {
         try {
             setLoading(true);
             
-            
-            // Insert Company
-            const { data: companyData, error: companyError } = await supabase
-                .from("companies")
+            // Insert Business
+            const { data: businessData, error: businessError } = await supabase
+                .from("business")
                 .insert([
                 {
-                    name,
+                    exist_reg_id: exist_reg_id,
+                    type: type,
+                    establishment: establishment,
+                    operation_area: operation_area,
+                    no_worker: no_worker,
                     address_street: addressStreet,
                     address_city: addressCity,
                     address_state: addressState,
@@ -354,28 +250,79 @@ export default function RegistrationForm({uid}) {
                     email,
                     status,
                     registration_level: selectedOption,
+                    registration_type: selectedType,
                     district: selectedDistrict,
                     user_id: user.id // insert the authenticated user's ID into the companies table
                 },
             ]);
-            console.log(companyData)
+            console.log(businessData)
 
-            if (companyError) {
-                throw companyError;
+            if (businessError) {
+                throw businessError;
             }
-
-            // Fetch company ID
+            
+            // Fetch business ID
             const { data, errorId } = await supabase
-                .from("companies")
+                .from("business")
                 .select("id")
                 .order("created_at", { ascending: false })
                 .limit(1);
 
                 if (errorId) {
-                console.log("Error fetching company ID:", error);
+                console.log("Error fetching business ID:", error);
                 } else if (data && data.length > 0) {
-                const companyId = data[0].id;
-            
+                const businessId = data[0].id;
+                
+                // Insert Business Owner
+                const { data: ownerData, error: ownerError } = await supabase
+                    .from("business_owner")
+                    .insert([
+                    {
+                        owner_name_mm: owner_name_mm,
+                        owner_name_eng: owner_name_eng,
+                        national_id: national_id,
+                        passport_no: passport_no,
+                        address_street: addressStreet,
+                        address_city: addressCity,
+                        address_state: addressState,
+                        address_zip: addressZip,
+                        address_country: addressCountry,
+                        phone,
+                        email,
+                        business_id: businessId,
+                    },
+                ]);
+                console.log(ownerData)
+
+                if (ownerError) {
+                    throw ownerError;
+                }
+
+                // Insert Additionl
+                const { data: additionalData, error: additionalError } = await supabase
+                    .from("business_additional")
+                    .insert([
+                    {
+                        building_used: selectedBuildingOption,
+                        building_landlord_name: buildingLandlordName,
+                        building_lease_period: buildingLeasePeriod,
+                        land_used: selectedLandOption,
+                        land_landlord_name: landLandlordName,
+                        land_lease_period: landLeasePeriod,
+                        harmful_chemical_used: selectedHarmfulOption,
+                        harmful_chemical_used_name: harmfulChemicalName,
+                        powerful_machine_uese: selectedPowerfulOption,
+                        powerful_machine_uese_name: powerfulChemicalName,
+                        business_approved_gov: selectedApproveOption,
+                        business_id: businessId,
+                    },
+                ]);
+                console.log(additionalData)
+
+                if (additionalError) {
+                    throw additionalError;
+                }
+                
                 // Insert Shareholders
                 for (let i = 0; i < shareholders.length; i++) {
                     const shareholder = shareholders[i];
@@ -385,7 +332,7 @@ export default function RegistrationForm({uid}) {
                     .insert({
                         name: shareholder.name,
                         percentage: shareholder.percentage,
-                        company_id: companyId,
+                        business_id: businessId,
                     });
             
                     if (shareholderError) {
@@ -394,85 +341,65 @@ export default function RegistrationForm({uid}) {
                     console.log(`Shareholder ${i + 1} created successfully`);
                     }
                 }
-                
-                // Insert Directors
-                const directorPromises = directors.map((director) =>
-                    supabase.from("directorslist").insert({
-                    name: director.name,
-                    national_id: director.national_id,
-                    passport_no: director.passport_no,
-                    company_id: companyId,
-                    })
-                );
-            
-                const directorResults = await Promise.all(directorPromises);
-                const directorErrors = directorResults.filter((r) => r.error);
-            
-                if (directorErrors.length > 0) {
-                    console.log("Error creating directors data:", directorErrors);
-                } else {
-                    console.log("Directors data created successfully:", directorResults);
-                }
-                
-                // Insert Businesses
-                const businessPromises = businesses.map((business) =>
-                    supabase.from("businesseslist").insert({
-                    name: business.name,
-                    company_id: companyId,
-                    })
-                );
-            
-                const businessResults = await Promise.all(businessPromises);
-                const businessErrors = businessResults.filter((r) => r.error);
-            
-                if (businessErrors.length > 0) {
-                    console.log("Error creating businesses data:", businessErrors);
-                } else {
-                    console.log("Businesses data created successfully:", businessResults);
-                }
-                
-                // Insert Required Documents
-                const { data: docData, error: docError } = await supabase
-                    .from("required_documents")
-                    .insert({
-                    doc1: docUrls.doc1,
-                    doc2: docUrls.doc2,
-                    doc3: docUrls.doc3,
-                    company_id: companyId,
-                });
 
-                if (docError) {
-                    console.log("Error creating document:", docError);
-                    } else if (docData && docData.length > 0) {
-                    const companyId = docData[0].company_id;
-                    console.log("Created document with company ID:", companyId);
-                    } else {
-                    console.log("No data returned from insert operation");
+                // Insert Applicant
+                let signatureUri = ''
+                if (signature !== null) {
+                    let result = await UploadFileToStorage(
+                    supabase,
+                    'applicant_signature',
+                    signature
+                    )
+                    if (result.success) {
+                    signatureUri = result.data
+                    }
                 }
-                //End
+                const { data: applicantData, error: applicantError } = await supabase
+                    .from("business_applicant")
+                    .insert([
+                    {
+                        name: applicant_name, 
+                        national_id: applicant_passport_no,
+                        passport_no: applicant_national_id,
+                        address_street: addressStreetApplicant,
+                        address_city: addressCountryApplicant,
+                        address_state: addressStateApplicant,
+                        address_country: addressCityApplicant,
+                        address_zip: addressZipApplicant,
+                        phone: phoneApplicant,
+                        email: emailApplicant,
+                        signature: signatureUri,
+                        business_id: businessId,
+                    },
+                ]);
+                console.log(applicantData)
+
+                if (applicantError) {
+                    throw applicantError;
+                }
 
                 //Review
                 useEffect(() => {
                     if (refresh) {
-                      getCompanies()
-                      setRefresh(false)
+                        getBusiness()
+                        setRefresh(false)
                     }
                 }, [refresh])
-            
-                async function getCompanies() {
+                
+                async function getBusiness() {
                     try {
                         setLoading(true)
-                        const { data: companyData, error: companyError } = await supabase
-                        .from('companies')
+                        const { data: businessData, error: businessError } = await supabase
+                        .from('business')
                         .select('*')
-                        .eq('id', companyId)
+                        .eq('id', businessId)
                         .single();
             
-                        if (companyError) {
-                            console.log('Error fetching company data:', companyError);
+                        if (businessError) {
+                            console.log('Error fetching business data:', businessError);
                             return;
                         }
-                    setCompany(companyData);
+                    setBusiness(businessData);
                     } catch (error) {
                       console.log(error)
                     } finally {
@@ -514,13 +441,15 @@ export default function RegistrationForm({uid}) {
 
                                     <div className="grid grid-cols-1 mt-10 gap-x-6 gap-y-8 sm:grid-cols-12">
                                         <div className="sm:col-span-3">
-                                            <label htmlFor="" className="block text-sm font-medium leading-6 text-gray-900">
+                                            <label htmlFor="owner_name_eng" className="block text-sm font-medium leading-6 text-gray-900">
                                                 Owner Name (English)
                                             </label>
                                             <div className="mt-2">
                                                 <input
                                                 type="text" 
-                                                name="name_eng"
+                                                name="owner_name_eng"
+                                                value={owner_name_eng} 
+                                                onChange={(e) => setOwnerNameEng(e.target.value)}
                                                 required
                                                 placeholder="Please enter Owner name"
                                                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset  sm:text-sm sm:leading-6"
@@ -529,13 +458,15 @@ export default function RegistrationForm({uid}) {
                                             
                                         </div>
                                         <div className="sm:col-span-3">
-                                            <label htmlFor="" className="block text-sm font-medium leading-6 text-gray-900">
+                                            <label htmlFor="owner_name_mm" className="block text-sm font-medium leading-6 text-gray-900">
                                                 Owner Name (Myanmar)
                                             </label>
                                             <div className="mt-2">
                                                 <input
                                                 type="text" 
-                                                name="name_mm"
+                                                name="owner_name_mm"
+                                                value={owner_name_mm} 
+                                                onChange={(e) => setOwnerNameMM(e.target.value)}
                                                 required
                                                 placeholder="Please enter Owner name"
                                                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset  sm:text-sm sm:leading-6"
@@ -544,13 +475,15 @@ export default function RegistrationForm({uid}) {
                                             
                                         </div>
                                         <div className="sm:col-span-3">
-                                            <label htmlFor="" className="block text-sm font-medium leading-6 text-gray-900">
+                                            <label htmlFor="passport_no" className="block text-sm font-medium leading-6 text-gray-900">
                                                 Passport No
                                             </label>
                                             <div className="mt-2">
                                                 <input
                                                 type="text"
                                                 name="passport_no"
+                                                value={passport_no} 
+                                                onChange={(e) => setPassportNo(e.target.value)}
                                                 
                                                 placeholder="A123456"
                                                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset  sm:text-sm sm:leading-6"
@@ -558,13 +491,15 @@ export default function RegistrationForm({uid}) {
                                             </div>
                                         </div>
                                         <div className="sm:col-span-3">
-                                            <label htmlFor="" className="block text-sm font-medium leading-6 text-gray-900">
+                                            <label htmlFor="national_id" className="block text-sm font-medium leading-6 text-gray-900">
                                                 National Id
                                             </label>
                                             <div className="mt-2">
                                                 <input
                                                 type="text"
                                                 name="national_id"
+                                                value={national_id} 
+                                                onChange={(e) => setNationalID(e.target.value)}
                                                 required
                                                 placeholder="12/MAKANA(N)123456"
                                                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset  sm:text-sm sm:leading-6"
@@ -572,15 +507,15 @@ export default function RegistrationForm({uid}) {
                                             </div>
                                         </div>
                                         <div className="sm:col-span-3">
-                                            <label htmlFor="" className="block text-sm font-medium leading-6 text-gray-900">
+                                            <label htmlFor="phoneOwner" className="block text-sm font-medium leading-6 text-gray-900">
                                                 Owner Phone Number
                                             </label>
                                             <div className="mt-2">
                                                 <input
                                                 type="text" 
-                                                name="phone"
-                                                value={phone} 
-                                                onChange={(e) => setPhone(e.target.value)}
+                                                name="phoneOwner"
+                                                value={phoneOwner} 
+                                                onChange={(e) => setPhoneOwner(e.target.value)}
                                                 required
                                                 placeholder="0934567890"
                                                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset  sm:text-sm sm:leading-6"
@@ -590,15 +525,15 @@ export default function RegistrationForm({uid}) {
                                         </div>
                     
                                         <div className="sm:col-span-3">
-                                            <label htmlFor="" className="block text-sm font-medium leading-6 text-gray-900">
+                                            <label htmlFor="emailOwner" className="block text-sm font-medium leading-6 text-gray-900">
                                                 Owner Email Address
                                             </label>
                                             <div className="mt-2">
                                                 <input
                                                 type="text" 
-                                                name="email"
-                                                value={email} 
-                                                onChange={(e) => setEmail(e.target.value)}
+                                                name="emailOwner"
+                                                value={emailOwner} 
+                                                onChange={(e) => setEmailOwner(e.target.value)}
                                                 required
                                                 placeholder="abcd@example.com"
                                                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset  sm:text-sm sm:leading-6"
@@ -607,15 +542,15 @@ export default function RegistrationForm({uid}) {
                                         </div>
                     
                                         <div className="sm:col-span-3">
-                                            <label htmlFor="street-address" className="block text-sm font-medium leading-6 text-gray-900">
+                                            <label htmlFor="addressStreetOwner" className="block text-sm font-medium leading-6 text-gray-900">
                                                 Owner Street address
                                             </label>
                                             <div className="mt-2">
                                                 <input
                                                 type="text" 
-                                                name="addressStreet"
-                                                value={addressStreet} 
-                                                onChange={(e) => setAddressStreet(e.target.value)}
+                                                name="addressStreetOwner"
+                                                value={addressStreetOwner} 
+                                                onChange={(e) => setAddressStreetOwner(e.target.value)}
                                                 required
                                                 placeholder="No. 123, Pyay Road"
                                                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset  sm:text-sm sm:leading-6"
@@ -625,14 +560,14 @@ export default function RegistrationForm({uid}) {
 
 
                                         <div className="sm:col-span-3">
-                                            <label htmlFor="country" className="block text-sm font-medium leading-6 text-gray-900">
+                                            <label htmlFor="addressCountryOwner" className="block text-sm font-medium leading-6 text-gray-900">
                                                 Country
                                             </label>
                                             <div className="mt-2">
                                                 <select
-                                                name="addressCountry"
-                                                value={addressCountry} 
-                                                onChange={(event) => setAddressCountry(event.target.value)}
+                                                name="addressCountryOwner"
+                                                value={addressCountryOwner} 
+                                                onChange={(event) => setAddressCountryOwner(event.target.value)}
                                                 required
                                                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset  sm:max-w-xs sm:text-sm sm:leading-6"
                                                 >
@@ -650,16 +585,16 @@ export default function RegistrationForm({uid}) {
                                                 State / Province
                                             </label>
                                             <div className="mt-2">
-                                                {addressCountry === "Myanmar" || addressCountry === "Thailand" || addressCountry === "United States" || addressCountry === "Canada" || addressCountry === "Mexico" ?(
+                                                {addressCountryOwner === "Myanmar" || addressCountryOwner === "Thailand" || addressCountryOwner === "United States" || addressCountryOwner === "Canada" || addressCountryOwner === "Mexico" ?(
                                                 <select
-                                                    name="addressState"
-                                                    value={addressState} 
-                                                    onChange={(e) => setAddressState(e.target.value)}
+                                                    name="addressStateOwner"
+                                                    value={addressStateOwner} 
+                                                    onChange={(e) => setAddressStateOwner(e.target.value)}
                                                     required
                                                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset  sm:max-w-xs sm:text-sm sm:leading-6"
                                                 >
                                                     <option value="">Choose</option>
-                                                    {countryStateOptions[addressCountry].map((state) => (
+                                                    {countryStateOptions[addressCountryOwner].map((state) => (
                                                     <option key={state} value={state}>
                                                         {state}
                                                     </option>
@@ -668,9 +603,9 @@ export default function RegistrationForm({uid}) {
                                                 ) : (
                                                 <input
                                                     type="text" 
-                                                    name="addressState"
-                                                    value={addressState} 
-                                                    onChange={(e) => setAddressState(e.target.value)}
+                                                    name="addressStateOwner"
+                                                    value={addressStateOwner} 
+                                                    onChange={(e) => setAddressStateOwner(e.target.value)}
                                                     required
                                                     placeholder="State / Province"
                                                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring--600 sm:text-sm sm:leading-6"
@@ -686,9 +621,9 @@ export default function RegistrationForm({uid}) {
                                             <div className="mt-2">
                                                 <input
                                                 type="text"
-                                                name="addressCity"
-                                                value={addressCity} 
-                                                onChange={(e) => setAddressCity(e.target.value)}
+                                                name="addressCityOwner"
+                                                value={addressCityOwner} 
+                                                onChange={(e) => setAddressCityOwner(e.target.value)}
                                                 required
                                                 placeholder="Hlaing Township"
                                                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring--600 sm:text-sm sm:leading-6"
@@ -703,9 +638,9 @@ export default function RegistrationForm({uid}) {
                                             <div className="mt-2">
                                                 <input
                                                 type="text" 
-                                                name="addressZip"
-                                                value={addressZip} 
-                                                onChange={(e) => setAddressZip(e.target.value)}
+                                                name="addressZipOwner"
+                                                value={addressZipOwner} 
+                                                onChange={(e) => setAddressZipOwner(e.target.value)}
                                                 required
                                                 placeholder="11051"
                                                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset  sm:text-sm sm:leading-6"
@@ -741,47 +676,51 @@ export default function RegistrationForm({uid}) {
 
                                     <div className="grid grid-cols-1 mt-10 gap-x-6 gap-y-8 sm:grid-cols-12">
                                         <div className="sm:col-span-3">
-                                            <label htmlFor="" className="block text-sm font-medium leading-6 text-gray-900">
+                                            <label htmlFor="exist_reg_id" className="block text-sm font-medium leading-6 text-gray-900">
                                                 Existing Registration ID
                                             </label>
                                             <div className="mt-2">
                                                 <input
                                                 type="text" 
-                                                name=""
-                                                required
-                                                placeholder=""
+                                                name="exist_reg_id"
+                                                value={exist_reg_id} 
+                                                onChange={(e) => setExistRegId(e.target.value)}
                                                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset  sm:text-sm sm:leading-6"
                                                 />
                                             </div>
                                         </div>
                                         <div className="sm:col-span-3">
-                                            <label htmlFor="" className="block text-sm font-medium leading-6 text-gray-900">
+                                            <label htmlFor="type" className="block text-sm font-medium leading-6 text-gray-900">
                                                 Type of Business
                                             </label>
                                             <div className="mt-2">
                                                 <select
                                                 id=""
-                                                name=""
+                                                name="type"
+                                                value={type} 
+                                                onChange={(e) => setType(e.target.value)}
                                                 required
                                                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset  sm:max-w-xs sm:text-sm sm:leading-6"
                                                 >
-                                                    <option value="">Type-1</option>
-                                                    <option value="">Type-2</option>
-                                                    <option value="">Type-3</option>
-                                                    <option value="">Type-3</option>
-                                                    <option value="">Type-4</option>
-                                                    <option value="">Type-5</option>
+                                                    <option value="type-1">Type-1</option>
+                                                    <option value="type-2">Type-2</option>
+                                                    <option value="type-3">Type-3</option>
+                                                    <option value="type-4">Type-3</option>
+                                                    <option value="type-5">Type-4</option>
+                                                    <option value="type-6">Type-5</option>
                                                 </select>
                                             </div>
                                         </div>
                                         <div className="sm:col-span-3">
-                                            <label htmlFor="" className="block text-sm font-medium leading-6 text-gray-900">
+                                            <label htmlFor="establishment" className="block text-sm font-medium leading-6 text-gray-900">
                                                 Period of Business Establishment
                                             </label>
                                             <div className="mt-2">
                                                 <input
                                                 type="text" 
-                                                name=""
+                                                name="establishment"
+                                                value={establishment} 
+                                                onChange={(e) => setEstablishment(e.target.value)}
                                                 required
                                                 placeholder=""
                                                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset  sm:text-sm sm:leading-6"
@@ -790,13 +729,15 @@ export default function RegistrationForm({uid}) {
                                         </div>
 
                                         <div className="sm:col-span-3">
-                                            <label htmlFor="" className="block text-sm font-medium leading-6 text-gray-900">
+                                            <label htmlFor="operation_area" className="block text-sm font-medium leading-6 text-gray-900">
                                                 Business Operations Area
                                             </label>
                                             <div className="mt-2">
                                                 <input
                                                 type="text" 
-                                                name=""
+                                                name="operation_area"
+                                                value={operation_area} 
+                                                onChange={(e) => setOperationArea(e.target.value)}
                                                 required
                                                 placeholder=""
                                                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset  sm:text-sm sm:leading-6"
@@ -804,13 +745,15 @@ export default function RegistrationForm({uid}) {
                                             </div>
                                         </div>
                                         <div className="sm:col-span-3">
-                                            <label htmlFor="" className="block text-sm font-medium leading-6 text-gray-900">
+                                            <label htmlFor="no_worker" className="block text-sm font-medium leading-6 text-gray-900">
                                                 No of Workers
                                             </label>
                                             <div className="mt-2">
                                                 <input
                                                 type="text" 
-                                                name=""
+                                                name="no_worker"
+                                                value={no_worker} 
+                                                onChange={(e) => setNoWorker(e.target.value)}
                                                 required
                                                 placeholder=""
                                                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset  sm:text-sm sm:leading-6"
@@ -1311,57 +1254,60 @@ export default function RegistrationForm({uid}) {
 
                                     <div className="grid grid-cols-1 mt-10 gap-x-6 gap-y-8 sm:grid-cols-12">
                                         <div className="sm:col-span-3">
-                                            <label htmlFor="" className="block text-sm font-medium leading-6 text-gray-900">
+                                            <label htmlFor="applicant_name" className="block text-sm font-medium leading-6 text-gray-900">
                                                 Name
                                             </label>
                                             <div className="mt-2">
                                                 <input
                                                 type="text" 
-                                                name=""
+                                                name="applicant_name"
+                                                value={applicant_name} 
+                                                onChange={(e) => setApplicantName(e.target.value)}
                                                 required
-                                                placeholder=""
                                                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset  sm:text-sm sm:leading-6"
                                                 />
                                             </div>
                                         </div>
                                         <div className="sm:col-span-3">
-                                            <label htmlFor="" className="block text-sm font-medium leading-6 text-gray-900">
+                                            <label htmlFor="applicant_passport_no" className="block text-sm font-medium leading-6 text-gray-900">
                                                 Passport No
                                             </label>
                                             <div className="mt-2">
                                                 <input
                                                 type="text"
-                                                name="passport_no"
-                                                
-                                                placeholder="A123456"
+                                                name="applicant_passport_no"
+                                                value={applicant_passport_no} 
+                                                onChange={(e) => setApplicantPassportNo(e.target.value)}
+                                                required
                                                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset  sm:text-sm sm:leading-6"
                                                 />
                                             </div>
                                         </div>
                                         <div className="sm:col-span-3">
-                                            <label htmlFor="" className="block text-sm font-medium leading-6 text-gray-900">
+                                            <label htmlFor="applicant_national_id" className="block text-sm font-medium leading-6 text-gray-900">
                                                 National Id
                                             </label>
                                             <div className="mt-2">
                                                 <input
                                                 type="text"
-                                                name="national_id"
+                                                name="applicant_national_id"
+                                                value={applicant_national_id} 
+                                                onChange={(e) => setApplicantNationalId(e.target.value)}
                                                 required
-                                                placeholder="12/MAKANA(N)123456"
                                                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset  sm:text-sm sm:leading-6"
                                                 />
                                             </div>
                                         </div>
                                         <div className="sm:col-span-3">
-                                            <label htmlFor="" className="block text-sm font-medium leading-6 text-gray-900">
+                                            <label htmlFor="phoneApplicant" className="block text-sm font-medium leading-6 text-gray-900">
                                                 Phone Number
                                             </label>
                                             <div className="mt-2">
                                                 <input
                                                 type="text" 
-                                                name="phone"
-                                                value={phone} 
-                                                onChange={(e) => setPhone(e.target.value)}
+                                                name="phoneApplicant"
+                                                value={phoneApplicant} 
+                                                onChange={(e) => setPhoneApplicant(e.target.value)}
                                                 required
                                                 placeholder="0934567890"
                                                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset  sm:text-sm sm:leading-6"
@@ -1371,15 +1317,15 @@ export default function RegistrationForm({uid}) {
                                         </div>
                     
                                         <div className="sm:col-span-3">
-                                            <label htmlFor="" className="block text-sm font-medium leading-6 text-gray-900">
+                                            <label htmlFor="emailApplicant" className="block text-sm font-medium leading-6 text-gray-900">
                                                 Email Address
                                             </label>
                                             <div className="mt-2">
                                                 <input
                                                 type="text" 
-                                                name="email"
-                                                value={email} 
-                                                onChange={(e) => setEmail(e.target.value)}
+                                                name="emailApplicant"
+                                                value={emailApplicant} 
+                                                onChange={(e) => setEmailApplicant(e.target.value)}
                                                 required
                                                 placeholder="abcd@example.com"
                                                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset  sm:text-sm sm:leading-6"
@@ -1388,15 +1334,15 @@ export default function RegistrationForm({uid}) {
                                         </div>
                     
                                         <div className="sm:col-span-3">
-                                            <label htmlFor="street-address" className="block text-sm font-medium leading-6 text-gray-900">
+                                            <label htmlFor="addressStreetApplicant" className="block text-sm font-medium leading-6 text-gray-900">
                                                 Street address
                                             </label>
                                             <div className="mt-2">
                                                 <input
                                                 type="text" 
-                                                name="addressStreet"
-                                                value={addressStreet} 
-                                                onChange={(e) => setAddressStreet(e.target.value)}
+                                                name="addressStreetApplicant"
+                                                value={addressStreetApplicant} 
+                                                onChange={(e) => setAddressStreetApplicant(e.target.value)}
                                                 required
                                                 placeholder="No. 123, Pyay Road"
                                                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset  sm:text-sm sm:leading-6"
@@ -1404,14 +1350,14 @@ export default function RegistrationForm({uid}) {
                                             </div>  
                                         </div>
                                         <div className="sm:col-span-3">
-                                            <label htmlFor="country" className="block text-sm font-medium leading-6 text-gray-900">
+                                            <label htmlFor="addressCountryApplicant" className="block text-sm font-medium leading-6 text-gray-900">
                                                 Country
                                             </label>
                                             <div className="mt-2">
                                                 <select
-                                                name="addressCountry"
-                                                value={addressCountry} 
-                                                onChange={(event) => setAddressCountry(event.target.value)}
+                                                name="addressCountryApplicant"
+                                                value={addressCountryApplicant} 
+                                                onChange={(event) => setAddressCountryApplicant(event.target.value)}
                                                 required
                                                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset  sm:max-w-xs sm:text-sm sm:leading-6"
                                                 >
@@ -1429,16 +1375,16 @@ export default function RegistrationForm({uid}) {
                                                 State / Province
                                             </label>
                                             <div className="mt-2">
-                                                {addressCountry === "Myanmar" || addressCountry === "Thailand" || addressCountry === "United States" || addressCountry === "Canada" || addressCountry === "Mexico" ?(
+                                                {addressCountryApplicant === "Myanmar" || addressCountryApplicant === "Thailand" || addressCountryApplicant === "United States" || addressCountryApplicant === "Canada" || addressCountryApplicant === "Mexico" ?(
                                                 <select
                                                     name="addressState"
-                                                    value={addressState} 
-                                                    onChange={(e) => setAddressState(e.target.value)}
+                                                    value={addressStateApplicant} 
+                                                    onChange={(e) => setAddressStateApplicant(e.target.value)}
                                                     required
                                                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset  sm:max-w-xs sm:text-sm sm:leading-6"
                                                 >
                                                     <option value="">Choose</option>
-                                                    {countryStateOptions[addressCountry].map((state) => (
+                                                    {countryStateOptions[addressCountryApplicant].map((state) => (
                                                     <option key={state} value={state}>
                                                         {state}
                                                     </option>
@@ -1448,8 +1394,8 @@ export default function RegistrationForm({uid}) {
                                                 <input
                                                     type="text" 
                                                     name="addressState"
-                                                    value={addressState} 
-                                                    onChange={(e) => setAddressState(e.target.value)}
+                                                    value={addressStateApplicant} 
+                                                    onChange={(e) => setAddressStateApplicant(e.target.value)}
                                                     required
                                                     placeholder="State / Province"
                                                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring--600 sm:text-sm sm:leading-6"
@@ -1459,15 +1405,15 @@ export default function RegistrationForm({uid}) {
                                         </div>
 
                                         <div className="sm:col-span-3">
-                                            <label htmlFor="city" className="block text-sm font-medium leading-6 text-gray-900">
+                                            <label htmlFor="addressCityApplicant" className="block text-sm font-medium leading-6 text-gray-900">
                                                 City / Township
                                             </label>
                                             <div className="mt-2">
                                                 <input
                                                 type="text"
-                                                name="addressCity"
-                                                value={addressCity} 
-                                                onChange={(e) => setAddressCity(e.target.value)}
+                                                name="addressCityApplicant"
+                                                value={addressCityApplicant} 
+                                                onChange={(e) => setAddressCityApplicant(e.target.value)}
                                                 required
                                                 placeholder="Hlaing Township"
                                                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring--600 sm:text-sm sm:leading-6"
@@ -1476,15 +1422,15 @@ export default function RegistrationForm({uid}) {
                                         </div>
 
                                         <div className="sm:col-span-2">
-                                            <label htmlFor="postal-code" className="block text-sm font-medium leading-6 text-gray-900">
+                                            <label htmlFor="addressZipApplicant" className="block text-sm font-medium leading-6 text-gray-900">
                                                 ZIP / Postal code
                                             </label>
                                             <div className="mt-2">
                                                 <input
                                                 type="text" 
-                                                name="addressZip"
-                                                value={addressZip} 
-                                                onChange={(e) => setAddressZip(e.target.value)}
+                                                name="addressZipApplicant"
+                                                value={addressZipApplicant} 
+                                                onChange={(e) => setAddressZipApplicant(e.target.value)}
                                                 required
                                                 placeholder="11051"
                                                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset  sm:text-sm sm:leading-6"
@@ -1521,7 +1467,7 @@ export default function RegistrationForm({uid}) {
                                 </button>
                                 <button
                                 type="submit"
-                                onClick={handleNext}
+                                onClick={handleNextAndSubmit}
                                 disabled={loading}
                                 className="px-3 py-2 text-sm font-semibold text-white rounded-md shadow-sm btn-primary hover-up-2"
                                 >
@@ -1542,9 +1488,146 @@ export default function RegistrationForm({uid}) {
                                             <p class="max-w-2xl mt-1 text-sm leading-6 text-gray-500">Personal details and application.</p>
                                         </div>
                                         <div class="border-t border-gray-100"></div>
-                                        
                                         <div className="border-t border-gray-100">
+                                            <dl className="divide-y divide-gray-100">
+                                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                                                    <dt className="text-sm font-medium leading-6 text-gray-900">Registration Level</dt>
+                                                    <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{selectedOption}{selectedDistrict}</dd>
+                                                </div>
+
+                                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                                                    <dt className="text-sm font-medium leading-6 text-gray-900">Registration Type</dt>
+                                                    <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{selectedType}</dd>
+                                                </div>
+                                                {/* Business Owner Start */}
+                                                <div className="px-4 py-6 bg-gray-100 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                                                    <dt className="font-medium leading-6 text-gray-900 text-md">Business Owner Information</dt>
+                                                </div>
+
+                                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                                                    <dt className="text-sm font-medium leading-6 text-gray-900">Business Owner Name (Myanmar)</dt>
+                                                    <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{owner_name_mm}</dd>
+                                                </div>
+                                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                                                    <dt className="text-sm font-medium leading-6 text-gray-900">Business Owner Name (English)</dt>
+                                                    <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{owner_name_eng}</dd>
+                                                </div>
+                                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                                                    <dt className="text-sm font-medium leading-6 text-gray-900">National ID</dt>
+                                                    <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{national_id}</dd>
+                                                </div>
+                                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                                                    <dt className="text-sm font-medium leading-6 text-gray-900">Passport No</dt>
+                                                    <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{passport_no}</dd>
+                                                </div>
+                                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                                                    <dt className="text-sm font-medium leading-6 text-gray-900">Address</dt>
+                                                    <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                                                        {[ addressStreetOwner, addressCityOwner, addressStateOwner, addressZipOwner, addressCountryOwner
+                                                        ].filter(Boolean).join(", ")}</dd>
+                                                </div>
+                                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                                                    <dt className="text-sm font-medium leading-6 text-gray-900">Phone Number</dt>
+                                                    <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{phoneOwner}</dd>
+                                                </div>
+                                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                                                    <dt className="text-sm font-medium leading-6 text-gray-900">Email</dt>
+                                                    <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{emailOwner}</dd>
+                                                </div>
+                                                {/* Business Owner End */}
+
+                                                {/* Business Information Start */}
+                                                <div className="px-4 py-6 bg-gray-100 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                                                    <dt className="font-medium leading-6 text-gray-900 text-md">Business Information</dt>
+                                                </div>
+
+                                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                                                    <dt className="text-sm font-medium leading-6 text-gray-900">Existing Registration ID</dt>
+                                                    <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{exist_reg_id}</dd>
+                                                </div>
+
+                                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                                                    <dt className="text-sm font-medium leading-6 text-gray-900">Type of Business</dt>
+                                                    <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{type}</dd>
+                                                </div>
+
+                                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                                                    <dt className="text-sm font-medium leading-6 text-gray-900">Period of Business Establishment</dt>
+                                                    <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{establishment}</dd>
+                                                </div>
+
+                                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                                                    <dt className="text-sm font-medium leading-6 text-gray-900">Business Operations Area</dt>
+                                                    <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{operation_area}</dd>
+                                                </div>
+
+                                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                                                    <dt className="text-sm font-medium leading-6 text-gray-900">No of Workers</dt>
+                                                    <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{no_worker}</dd>
+                                                </div>
                                             
+                                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                                                    <dt className="text-sm font-medium leading-6 text-gray-900">Address</dt>
+                                                    <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                                                        {[ addressStreet, addressCity, addressState, addressZip, addressCountry
+                                                        ].filter(Boolean).join(", ")}</dd>
+                                                </div>
+                                                
+                                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                                                    <dt className="text-sm font-medium leading-6 text-gray-900">Phone Number</dt>
+                                                    <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{phone}</dd>
+                                                </div>
+                                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                                                    <dt className="text-sm font-medium leading-6 text-gray-900">Email</dt>
+                                                    <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{email}</dd>
+                                                </div>
+
+                                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                                                    <dt className="text-sm font-medium leading-6 text-gray-900">Shareholder Lists</dt>
+                                                        <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                                                            {shareholders.map((shareholder, index) => (
+                                                                <div key={index}>
+                                                                    <p>Shareholder Name: {shareholder.name}</p>
+                                                                    <p>Percentage: {shareholder.percentage}</p>
+                                                                </div>
+                                                            ))}
+                                                        </dd>
+                                                </div>
+
+                                                {/* Business Information End */}
+
+                                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                                    <dt className="text-sm font-medium leading-6 text-gray-900">Attachments</dt>
+                                                    <dd className="mt-2 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                                                        <ul role="list" className="border border-gray-200 divide-y divide-gray-100 rounded-md">
+                                                            <li className="flex items-center justify-between py-4 pl-4 pr-5 text-sm leading-6">
+                                                                <div className="flex items-center flex-1 w-0">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13" />
+                                                                    </svg>
+
+                                                                    <div className="flex flex-1 min-w-0 gap-2 ml-4">
+                                                                    <span className="font-medium truncate">Signature</span>
+                                                                    {/* <span className="font-medium truncate">{docUrls.doc1 && ( <p>{docUrls.doc1}</p> )}</span> */}
+                                                                    </div>
+                                                                </div>
+                                                                <div className="flex-shrink-0 ml-4">
+                                                                    {signature && (
+                                                                        <a
+                                                                        href={signature}
+                                                                        target="_blank"
+                                                                        rel="noopener noreferrer"
+                                                                        className="font-medium text-blue-600 hover:text-blue-500"
+                                                                        >
+                                                                        Download
+                                                                        </a>
+                                                                    )}  
+                                                                </div>
+                                                            </li>
+                                                        </ul>
+                                                    </dd>
+                                                </div>
+                                            </dl>
                                         </div>
                                     </div>
                                     <div className="px-2 py-2">
@@ -1583,7 +1666,7 @@ export default function RegistrationForm({uid}) {
                         <div className="flex flex-col items-center space-y-12">
                             <h1 className="text-3xl font-bold text-gray-900">Registration Completed!</h1>
                             <p className="text-lg font-medium text-center text-gray-800">
-                                Thank you for submitting your company registration. Our team will review and verify the information provided and contact you if any further information is required.
+                                Thank you for submitting your business registration. Our team will review and verify the information provided and contact you if any further information is required.
                             </p>
                             <div className="flex mt-8 space-x-4">
                                 <button

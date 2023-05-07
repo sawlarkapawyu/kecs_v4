@@ -168,7 +168,7 @@ create table business (
     type text null, //dropdown (business list)
     establishment text null,
     operation_area text null,
-    no_workder text null,
+    no_worker text null,
 
     address_street text null,
     address_city text null,

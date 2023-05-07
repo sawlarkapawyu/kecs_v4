@@ -13,6 +13,7 @@ export default function RegistrationForm({uid}) {
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const [refresh, setRefresh] = useState(false)
     const router = useRouter();
     const supabase = useSupabaseClient();
     const user = useUser();

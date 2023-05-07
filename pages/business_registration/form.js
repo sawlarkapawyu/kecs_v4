@@ -9,7 +9,7 @@ const BusinessRegistration = () => {
             <Layout>
                 <section className="pt-40 pb-12 -mt-24 bg-blueGray-100">
                     <div className="container">
-                        <h1 className="mb-5 text-2xl font-bold lg:text-5xl wow animate__animated animate__fadeIn animated">Company Registration</h1>
+                        <h1 className="mb-5 text-2xl font-bold lg:text-5xl wow animate__animated animate__fadeIn animated">Business Registration</h1>
                         <ul className="flex pb-12 text-sm text-gray-500 lg:text-sm wow animate__animated animate__fadeIn animated">
                             <li className="inline-flex items-center">
                                 <a href="#" className="text-gray-800 hover:text-blue-500">

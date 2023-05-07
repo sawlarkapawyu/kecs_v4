@@ -30,10 +30,10 @@
       "static/chunks/main.js",
       "static/chunks/pages/_error.js"
     ],
-    "/resources/legal_document": [
+    "/business_registration/form": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/resources/legal_document.js"
+      "static/chunks/pages/business_registration/form.js"
     ]
   },
   "ampFirstPages": []
