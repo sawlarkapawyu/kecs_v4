@@ -2,6 +2,5 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/404": "pages/404.js",
-  "/business_registration/form": "pages/business_registration/form.js"
+  "/company_registration/form": "pages/company_registration/form.js"
 }

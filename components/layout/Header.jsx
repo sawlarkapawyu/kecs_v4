@@ -170,10 +170,10 @@ const Header = ({handleHidden}) => {
                                 </a>
                             </Link>
                              )} */}
-                            <select id="locale-select" style={{border: 'none', outline: 'none', backgroundColor: 'transparent', padding: 30}}>
+                            {/* <select id="locale-select" style={{border: 'none', outline: 'none', backgroundColor: 'transparent', padding: 30}}>
                                 <option value="en">English</option>
                                 <option value="mm">Myanmar</option>
-                            </select>
+                            </select> */}
                             
                         </div>
                         

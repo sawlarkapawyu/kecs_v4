@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useRouter } from 'next/router';
 import Select from 'react-select';
-import { UploadFileToStorage, getImage } from '/src/utilities/storage.js'
+import { v4 as uuidv4 } from 'uuid';
 
-export default function RegistrationForm({uid}) {
+export default function RegistrationForm({ businessId }) {
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
@@ -35,10 +35,6 @@ export default function RegistrationForm({uid}) {
     const [email, setEmail] = useState('');
     const [status, setStatus] = useState('Pending');
 
-    //For review used
-    const [business, setBusiness] = useState(null);
-    const [isAgreed, setIsAgreed] = useState(false);
-    
     //Owner Start
     const [owner_name_mm, setOwnerNameMM] = useState('');
     const [owner_name_eng, setOwnerNameEng] = useState('');
@@ -92,24 +88,24 @@ export default function RegistrationForm({uid}) {
         setSelectedApproveOption(e.target.value);
     };
 
-        //Shareholders Start
-        const handleShareholderInputChange = (e, index) => {
-            const { name, value } = e.target;
-            const list = [...shareholders];
-            list[index][name] = value;
-            setShareholders(list);
-        };
+    //Shareholders Start
+    const handleShareholderInputChange = (e, index) => {
+        const { name, value } = e.target;
+        const list = [...shareholders];
+        list[index][name] = value;
+        setShareholders(list);
+    };
 
-        const handleShareholderRemove = (index) => {
-            const list = [...shareholders];
-            list.splice(index, 1);
-            setShareholders(list);
-        };
+    const handleShareholderRemove = (index) => {
+        const list = [...shareholders];
+        list.splice(index, 1);
+        setShareholders(list);
+    };
 
-        const handleShareholderAdd = () => {
-            setShareholders([...shareholders, { name: "", percentage: "" }]);
-        };
-        //Shareholder End
+    const handleShareholderAdd = () => {
+        setShareholders([...shareholders, { name: "", percentage: "" }]);
+    };
+    //Shareholder End
 
     //Additional End
     
@@ -124,12 +120,30 @@ export default function RegistrationForm({uid}) {
     const [addressCityApplicant, setAddressCityApplicant] = useState('');
     const [phoneApplicant, setPhoneApplicant] = useState('');
     const [emailApplicant, setEmailApplicant] = useState('');
-
-    const [signature, setSignature] = useState(null)
-    const [signatureUri, setSignatureUri] = useState('');
-
+    const [signatureUrl, setSignatureUrl] = useState('')
+    const [uploading, setUploading] = useState(false);
+    
+    // Handle upload Signature
+    const handleSignatureUpload = (e) => {
+        setSignatureUrl(e.target.files[0]);
+    };
+    
    //End
 
+   //For submit used
+   const [business, setBusiness] = useState(null);
+   const [isAgreed, setIsAgreed] = useState(false);
+   const [isInfoCorrect, setIsInfoCorrect] = useState(false);
+
+   const handleAgreementChange = (event) => {
+       setIsAgreed(event.target.checked);
+   };
+
+   const handleInfoCorrectChange = (event) => {
+       setIsInfoCorrect(event.target.checked);
+   };
+   
+   
     // Address Dropdown (Country/State)
     const countryStateOptions = {
         Myanmar: ["Yangon", "Mandalay", "Naypyidaw", "Bago"],
@@ -138,20 +152,6 @@ export default function RegistrationForm({uid}) {
         Canada: ["Ontario", "Quebec", "British Columbia"],
         Mexico: ["Mexico City", "Cancun", "Tijuana"]
     };
-    //Companies End
-
-    const handleComplete = () => {
-        if (isAgreed) {
-          console.log("Process completed successfully");
-          // TODO: Perform any necessary action to complete the process
-          router.push({ 
-            pathname: '/',
-          }); 
-        } else {
-          console.log("Please agree to the terms to complete the process");
-        }
-    };
-    //Required Documents End
 
     //For Validation in handleNext
     const [errorMessage, setErrorMessage] = useState({
@@ -190,14 +190,6 @@ export default function RegistrationForm({uid}) {
                 break;
         
                 case 4:
-                // Validation criteria for Business Appliciant
-
-                setStep(step + 1);
-                break;
-        
-                case 5:
-                //Review
-                
                 //complete
                 if (isAgreed) {
                     console.log("Process completed successfully");
@@ -207,7 +199,7 @@ export default function RegistrationForm({uid}) {
                 }
                 break;
                 
-                case 6:
+                case 5:
                 setStep(step + 1);
                 break;
 
@@ -228,6 +220,7 @@ export default function RegistrationForm({uid}) {
     };
     
     const handleSubmit = async () => {
+        
         try {
             setLoading(true);
             
@@ -256,6 +249,7 @@ export default function RegistrationForm({uid}) {
                 },
             ]);
             console.log(businessData)
+            console.log(` Business created successfully`);
 
             if (businessError) {
                 throw businessError;
@@ -293,6 +287,7 @@ export default function RegistrationForm({uid}) {
                     },
                 ]);
                 console.log(ownerData)
+                console.log(` Business Owner created successfully`);
 
                 if (ownerError) {
                     throw ownerError;
@@ -318,6 +313,7 @@ export default function RegistrationForm({uid}) {
                     },
                 ]);
                 console.log(additionalData)
+                console.log(` Business Additional created successfully`);
 
                 if (additionalError) {
                     throw additionalError;
@@ -343,17 +339,18 @@ export default function RegistrationForm({uid}) {
                 }
 
                 // Insert Applicant
-                let signatureUri = ''
-                if (signature !== null) {
-                    let result = await UploadFileToStorage(
-                    supabase,
-                    'applicant_signature',
-                    signature
-                    )
-                    if (result.success) {
-                    signatureUri = result.data
-                    }
+                const fileNameParts = signatureUrl.name.split('.');
+                const fileType = fileNameParts[fileNameParts.length - 1];
+                const fileName = `${uuidv4()}.${fileType}`;
+
+                const { error: uploadError } = await supabase.storage
+                .from('applicant_signature')
+                .upload(fileName, signatureUrl);
+                if (uploadError) {
+                console.log('error uploading signature', uploadError);
+                return;
                 }
+
                 const { data: applicantData, error: applicantError } = await supabase
                     .from("business_applicant")
                     .insert([
@@ -368,24 +365,26 @@ export default function RegistrationForm({uid}) {
                         address_zip: addressZipApplicant,
                         phone: phoneApplicant,
                         email: emailApplicant,
-                        signature: signatureUri,
+                        signature: fileName,
                         business_id: businessId,
                     },
                 ]);
                 console.log(applicantData)
+                console.log(` Business Applicant created successfully`);
 
                 if (applicantError) {
                     throw applicantError;
                 }
 
                 //Review
+                
                 useEffect(() => {
                     if (refresh) {
-                        getBusiness()
-                        setRefresh(false)
+                      getBusiness()
+                      setRefresh(false)
                     }
                 }, [refresh])
-                
+
                 async function getBusiness() {
                     try {
                         setLoading(true)
@@ -399,7 +398,7 @@ export default function RegistrationForm({uid}) {
                             console.log('Error fetching business data:', businessError);
                             return;
                         }
-                    setBusiness(businessData);
+                        setBusiness(businessData);
                     } catch (error) {
                       console.log(error)
                     } finally {
@@ -407,8 +406,10 @@ export default function RegistrationForm({uid}) {
                       
                     }
                 }
+            
                 //End
             }
+
         } catch (error) {
             console.error(error);
             setErrorMessage([error.message]);
@@ -416,15 +417,13 @@ export default function RegistrationForm({uid}) {
                 setLoading(false);
             }
     };
-
+    
     const handleNextAndSubmit = (event) => {
         event.preventDefault();
         handleSubmit();
         handleNext();
     }
-    const handleAgreementChange = (event) => {
-        setIsAgreed(event.target.checked);
-    };
+      
 
     return (
         <section className="pt-12">
@@ -929,7 +928,7 @@ export default function RegistrationForm({uid}) {
                                     <h2 className="text-base font-semibold leading-7 text-gray-900">Additional Information</h2>
                                     <p className="mt-1 text-sm leading-6 text-gray-600">Please fill out the necessary fields with your business additonal information.</p>
                                     <div className="py-8 border-b sm:col-span-12">
-                                        <p className="mb-6 text-gray-700">(1) Please select the land to be used for your business:</p>
+                                        <p className="mb-6 text-gray-700">(1) Please select the building to be used for your business:</p>
                                         <div className="flex items-center mb-4">
                                             <input
                                             type="radio"
@@ -985,7 +984,7 @@ export default function RegistrationForm({uid}) {
                                     </div>
 
                                     <div className="py-8 border-b sm:col-span-12">
-                                        <p className="mb-6 text-gray-700">(2) Please select the type of business registration:</p>
+                                        <p className="mb-6 text-gray-700">(2) Please select the land to be used for your business:</p>
                                         <div className="flex items-center mb-4">
                                             <input
                                             type="radio"
@@ -1443,24 +1442,43 @@ export default function RegistrationForm({uid}) {
                                             </label>
                                             <div className="mt-2">
                                                 <input
-                                                id="signature"
-                                                type="file" 
-                                                name="signature"
-                                                accept="image/*"
-                                                onChange={(e) => {
-                                                    e.preventDefault()
-                                                    const [file] = e.currentTarget.files
-                                                    setSignature(file)
-                                                    console.log({ file: file })
-                                                }}
-                                                required
-                                                className="relative flex-auto w-full border border-solid rounded"
+                                                    className="relative flex-auto block w-full min-w-0 m-0 border border-solid rounded sm:w-full"
+                                                    type="file"
+                                                    accept="image/*"
+                                                    id="signaurlUrl" 
+                                                    onChange={handleSignatureUpload}
+                                                    disabled={uploading}
                                                 />
                                             </div>
                                         </div>
+                                                        
                                     </div>
                                 </div>
                             </form>
+                            <div className="px-2 py-2">
+                                <label htmlFor="info-correct">
+                                    <input
+                                    type="checkbox"
+                                    id="info-correct"
+                                    checked={isInfoCorrect}
+                                    onChange={handleInfoCorrectChange}
+                                    required
+                                    />
+                                    &nbsp; &nbsp; Informations are correct and checked.
+                                </label>
+                            </div>
+                            <div className="px-2 py-2">
+                                <label htmlFor="agreement">
+                                    <input
+                                    type="checkbox"
+                                    id="agreement"
+                                    checked={isAgreed}
+                                    onChange={handleAgreementChange}
+                                    required
+                                    />
+                                        &nbsp; &nbsp; I agree to the terms and conditions.
+                                </label>
+                            </div>
                             <div className="flex items-center justify-end mt-6 gap-x-6">
                                 <button type="button" onClick={handleBack} className="text-sm font-semibold leading-6 text-gray-900">
                                 Back
@@ -1468,200 +1486,16 @@ export default function RegistrationForm({uid}) {
                                 <button
                                 type="submit"
                                 onClick={handleNextAndSubmit}
-                                disabled={loading}
+                                disabled={!isAgreed || !isInfoCorrect}
                                 className="px-3 py-2 text-sm font-semibold text-white rounded-md shadow-sm btn-primary hover-up-2"
                                 >
-                                Next
+                                Submit
                                 </button>
                             </div>
                         </div>  
                     )}
 
                     {step === 5 && (
-                    //Review
-                        <div class="container mx-auto px-4">
-                            <div class="sm:max-w-lg md:max-w-xl lg:max-w-4xl xl:max-w-6xl mx-auto">
-                                <div class="space-y-12">
-                                    <div class="overflow-hidden bg-white shadow sm:rounded-lg">
-                                        <div class="px-4 py-6 sm:px-6">
-                                            <h3 class="text-base font-semibold leading-7 text-gray-900">Applicant Information</h3>
-                                            <p class="max-w-2xl mt-1 text-sm leading-6 text-gray-500">Personal details and application.</p>
-                                        </div>
-                                        <div class="border-t border-gray-100"></div>
-                                        <div className="border-t border-gray-100">
-                                            <dl className="divide-y divide-gray-100">
-                                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                                    <dt className="text-sm font-medium leading-6 text-gray-900">Registration Level</dt>
-                                                    <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{selectedOption}{selectedDistrict}</dd>
-                                                </div>
-
-                                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                                    <dt className="text-sm font-medium leading-6 text-gray-900">Registration Type</dt>
-                                                    <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{selectedType}</dd>
-                                                </div>
-                                                {/* Business Owner Start */}
-                                                <div className="px-4 py-6 bg-gray-100 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                                    <dt className="font-medium leading-6 text-gray-900 text-md">Business Owner Information</dt>
-                                                </div>
-
-                                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                                    <dt className="text-sm font-medium leading-6 text-gray-900">Business Owner Name (Myanmar)</dt>
-                                                    <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{owner_name_mm}</dd>
-                                                </div>
-                                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                                    <dt className="text-sm font-medium leading-6 text-gray-900">Business Owner Name (English)</dt>
-                                                    <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{owner_name_eng}</dd>
-                                                </div>
-                                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                                    <dt className="text-sm font-medium leading-6 text-gray-900">National ID</dt>
-                                                    <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{national_id}</dd>
-                                                </div>
-                                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                                    <dt className="text-sm font-medium leading-6 text-gray-900">Passport No</dt>
-                                                    <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{passport_no}</dd>
-                                                </div>
-                                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                                    <dt className="text-sm font-medium leading-6 text-gray-900">Address</dt>
-                                                    <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                                                        {[ addressStreetOwner, addressCityOwner, addressStateOwner, addressZipOwner, addressCountryOwner
-                                                        ].filter(Boolean).join(", ")}</dd>
-                                                </div>
-                                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                                    <dt className="text-sm font-medium leading-6 text-gray-900">Phone Number</dt>
-                                                    <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{phoneOwner}</dd>
-                                                </div>
-                                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                                    <dt className="text-sm font-medium leading-6 text-gray-900">Email</dt>
-                                                    <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{emailOwner}</dd>
-                                                </div>
-                                                {/* Business Owner End */}
-
-                                                {/* Business Information Start */}
-                                                <div className="px-4 py-6 bg-gray-100 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                                    <dt className="font-medium leading-6 text-gray-900 text-md">Business Information</dt>
-                                                </div>
-
-                                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                                    <dt className="text-sm font-medium leading-6 text-gray-900">Existing Registration ID</dt>
-                                                    <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{exist_reg_id}</dd>
-                                                </div>
-
-                                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                                    <dt className="text-sm font-medium leading-6 text-gray-900">Type of Business</dt>
-                                                    <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{type}</dd>
-                                                </div>
-
-                                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                                    <dt className="text-sm font-medium leading-6 text-gray-900">Period of Business Establishment</dt>
-                                                    <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{establishment}</dd>
-                                                </div>
-
-                                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                                    <dt className="text-sm font-medium leading-6 text-gray-900">Business Operations Area</dt>
-                                                    <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{operation_area}</dd>
-                                                </div>
-
-                                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                                    <dt className="text-sm font-medium leading-6 text-gray-900">No of Workers</dt>
-                                                    <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{no_worker}</dd>
-                                                </div>
-                                            
-                                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                                    <dt className="text-sm font-medium leading-6 text-gray-900">Address</dt>
-                                                    <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                                                        {[ addressStreet, addressCity, addressState, addressZip, addressCountry
-                                                        ].filter(Boolean).join(", ")}</dd>
-                                                </div>
-                                                
-                                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                                    <dt className="text-sm font-medium leading-6 text-gray-900">Phone Number</dt>
-                                                    <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{phone}</dd>
-                                                </div>
-                                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                                    <dt className="text-sm font-medium leading-6 text-gray-900">Email</dt>
-                                                    <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{email}</dd>
-                                                </div>
-
-                                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                                    <dt className="text-sm font-medium leading-6 text-gray-900">Shareholder Lists</dt>
-                                                        <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                                                            {shareholders.map((shareholder, index) => (
-                                                                <div key={index}>
-                                                                    <p>Shareholder Name: {shareholder.name}</p>
-                                                                    <p>Percentage: {shareholder.percentage}</p>
-                                                                </div>
-                                                            ))}
-                                                        </dd>
-                                                </div>
-
-                                                {/* Business Information End */}
-
-                                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                                                    <dt className="text-sm font-medium leading-6 text-gray-900">Attachments</dt>
-                                                    <dd className="mt-2 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-                                                        <ul role="list" className="border border-gray-200 divide-y divide-gray-100 rounded-md">
-                                                            <li className="flex items-center justify-between py-4 pl-4 pr-5 text-sm leading-6">
-                                                                <div className="flex items-center flex-1 w-0">
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13" />
-                                                                    </svg>
-
-                                                                    <div className="flex flex-1 min-w-0 gap-2 ml-4">
-                                                                    <span className="font-medium truncate">Signature</span>
-                                                                    {/* <span className="font-medium truncate">{docUrls.doc1 && ( <p>{docUrls.doc1}</p> )}</span> */}
-                                                                    </div>
-                                                                </div>
-                                                                <div className="flex-shrink-0 ml-4">
-                                                                    {signature && (
-                                                                        <a
-                                                                        href={signature}
-                                                                        target="_blank"
-                                                                        rel="noopener noreferrer"
-                                                                        className="font-medium text-blue-600 hover:text-blue-500"
-                                                                        >
-                                                                        Download
-                                                                        </a>
-                                                                    )}  
-                                                                </div>
-                                                            </li>
-                                                        </ul>
-                                                    </dd>
-                                                </div>
-                                            </dl>
-                                        </div>
-                                    </div>
-                                    <div className="px-2 py-2">
-                                        <label htmlFor="agreement">
-                                            <input
-                                            type="checkbox"
-                                            id="agreement"
-                                            checked={isAgreed}
-                                            onChange={handleAgreementChange}
-                                            required
-                                            />
-                                                &nbsp; &nbsp; I agree to the terms and conditions.
-                                        </label>
-                                    </div>
-                                </div>
-                                <div className="flex items-center justify-end mt-6 gap-x-6">
-                                    <button type="button" onClick={handleBack} className="text-sm font-semibold leading-6 text-gray-900">
-                                    Back
-                                    </button>
-                                    <button
-                                    type="submit"
-                                    onClick={handleNext}
-                                    disabled={loading}
-                                    className="px-3 py-2 text-sm font-semibold text-white btn-primary hover-up-2"
-                                    >
-                                    Next
-                                    </button>
-                                </div>
-                            </div>
-                        </div>  
-
-                    )}
-
-                    {step === 6 && (
                     //Complete
                         <div className="flex flex-col items-center space-y-12">
                             <h1 className="text-3xl font-bold text-gray-900">Registration Completed!</h1>

@@ -2,12 +2,13 @@ import React, { useState, useEffect } from "react";
 import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useRouter } from 'next/router';
 import Select from 'react-select';
+import { v4 as uuidv4 } from 'uuid';
+
 
 export default function RegistrationForm({uid}) {
     const [shareholders, setShareholders] = useState([{ name: "", percentage: "" }]);
     const [directors, setDirectors] = useState([{ name: "", national_id: "", passport_no: "" }]);
     const [businesses, setBusinesses] = useState([{ name: "" }]);
-    const [docUrls, setDocUrls] = useState({ doc1: null, doc2: null, doc3: null });
     const [uploading, setUploading] = useState(false);
 
     const [step, setStep] = useState(1);
@@ -32,9 +33,6 @@ export default function RegistrationForm({uid}) {
     const [phone, setPhone] = useState('');
     const [email, setEmail] = useState('');
     const [status, setStatus] = useState('Pending');
-
-    const [companies, setCompany] = useState(null);
-    const [isAgreed, setIsAgreed] = useState(false);
     
     // Address Dropdown (Country/State)
     const countryStateOptions = {
@@ -104,79 +102,96 @@ export default function RegistrationForm({uid}) {
     //BusinessList End
     
     //Required Documents Start
-    const uploadDocument = async (event, docNum) => {
-        try {
-          setUploading(true);
-      
-          if (!event.target.files || event.target.files.length === 0) {
-            throw new Error('You must select a document to upload.');
-          }
-      
-          const file = event.target.files[0];
-          const fileExt = file.name.split('.').pop();
-          const fileName = `${uid}.${fileExt}`;
-      
-          let { error: uploadError, data: uploadedFile } = await supabase.storage
-            .from('documents')
-            .upload(`company/${file.name}`, file);
-      
-          if (uploadError) {
-            throw uploadError;
-          }
-      
-          const path = uploadedFile.path;
-          setDocUrls((prevDocUrls) => ({ ...prevDocUrls, [docNum]: path }));
-          return path;
-        } catch (error) {
-          alert('Error uploading document!');
-          console.log(error);
-        } finally {
-          setUploading(false);
-        }
-    };
-    
-    const downloadDocument = async (path, docNum) => {
-        try {
-          const { data, error } = await supabase.storage.from('documents').download(path);
-          if (error) {
-            throw error;
-          }
-          const url = URL.createObjectURL(data);
-          setDocUrls((prevDocUrls) => ({ ...prevDocUrls, [docNum]: url }));
-        } catch (error) {
-          console.log('Error downloading document: ', error);
-        }
-    };
-    
-    useEffect(() => {
-    if (docUrls.doc1) downloadDocument(docUrls.doc1, 'doc1');
-    }, [docUrls.doc1]);
-    
-    useEffect(() => {
-    if (docUrls.doc2) downloadDocument(docUrls.doc2, 'doc2');
-    }, [docUrls.doc2]);
-    
-    useEffect(() => {
-    if (docUrls.doc3) downloadDocument(docUrls.doc3, 'doc3');
-    }, [docUrls.doc3]);
-    
-    const handleUploadDoc1 = (event) => uploadDocument(event, 'doc1');
-    const handleUploadDoc2 = (event) => uploadDocument(event, 'doc2');
-    const handleUploadDoc3 = (event) => uploadDocument(event, 'doc3');
+    const [document1Url, setDocument1Url] = useState(null);
+    const [document2Url, setDocument2Url] = useState(null);
+    const [document3Url, setDocument3Url] = useState(null);
 
-    const handleComplete = () => {
-        if (isAgreed) {
-          console.log("Process completed successfully");
-          // TODO: Perform any necessary action to complete the process
-          router.push({ 
-            pathname: '/',
-          }); 
-        } else {
-          console.log("Please agree to the terms to complete the process");
-        }
+    // Handle file upload
+    const handleFile1Upload = (e) => {
+        setDocument1Url(e.target.files[0]);
     };
+    const handleFile2Upload = (e) => {
+        setDocument2Url(e.target.files[0]);
+    };
+    const handleFile3Upload = (e) => {
+        setDocument3Url(e.target.files[0]);
+    };
+
+    // const uploadDocument = async (event, docNum) => {
+    //     try {
+    //       setUploading(true);
+      
+    //       if (!event.target.files || event.target.files.length === 0) {
+    //         throw new Error('You must select a document to upload.');
+    //       }
+      
+    //       const file = event.target.files[0];
+    //       const fileExt = file.name.split('.').pop();
+    //       const fileName = `${uid}.${fileExt}`;
+      
+    //       let { error: uploadError, data: uploadedFile } = await supabase.storage
+    //         .from('documents')
+    //         .upload(`company/${file.name}`, file);
+      
+    //       if (uploadError) {
+    //         throw uploadError;
+    //       }
+      
+    //       const path = uploadedFile.path;
+    //       setDocUrls((prevDocUrls) => ({ ...prevDocUrls, [docNum]: path }));
+    //       return path;
+    //     } catch (error) {
+    //       alert('Error uploading document!');
+    //       console.log(error);
+    //     } finally {
+    //       setUploading(false);
+    //     }
+    // };
+    
+    // const downloadDocument = async (path, docNum) => {
+    //     try {
+    //       const { data, error } = await supabase.storage.from('documents').download(path);
+    //       if (error) {
+    //         throw error;
+    //       }
+    //       const url = URL.createObjectURL(data);
+    //       setDocUrls((prevDocUrls) => ({ ...prevDocUrls, [docNum]: url }));
+    //     } catch (error) {
+    //       console.log('Error downloading document: ', error);
+    //     }
+    // };
+    
+    // useEffect(() => {
+    // if (docUrls.doc1) downloadDocument(docUrls.doc1, 'doc1');
+    // }, [docUrls.doc1]);
+    
+    // useEffect(() => {
+    // if (docUrls.doc2) downloadDocument(docUrls.doc2, 'doc2');
+    // }, [docUrls.doc2]);
+    
+    // useEffect(() => {
+    // if (docUrls.doc3) downloadDocument(docUrls.doc3, 'doc3');
+    // }, [docUrls.doc3]);
+    
+    // const handleUploadDoc1 = (event) => uploadDocument(event, 'doc1');
+    // const handleUploadDoc2 = (event) => uploadDocument(event, 'doc2');
+    // const handleUploadDoc3 = (event) => uploadDocument(event, 'doc3');
+
     //Required Documents End
 
+    //For submit used
+    const [companies, setCompany] = useState(null);
+    const [isAgreed, setIsAgreed] = useState(false);
+    const [isInfoCorrect, setIsInfoCorrect] = useState(false);
+
+    const handleAgreementChange = (event) => {
+        setIsAgreed(event.target.checked);
+    };
+ 
+    const handleInfoCorrectChange = (event) => {
+        setIsInfoCorrect(event.target.checked);
+    };
+    
     //For Validation in handleNext
     const [errorMessage, setErrorMessage] = useState({
         name: '',
@@ -206,125 +221,117 @@ export default function RegistrationForm({uid}) {
                 const emailRegex = /\S+@\S+\.\S+/;
 
                 let newErrorMessages = {
-                name: '',
-                addressStreet: '',
-                addressCity: '',
-                addressState: '',
-                addressZip: '',
-                addressCountry: '',
-                phone: '',
-                email: '',
-            };
+                    name: '',
+                    addressStreet: '',
+                    addressCity: '',
+                    addressState: '',
+                    addressZip: '',
+                    addressCountry: '',
+                    phone: '',
+                    email: '',
+                };
 
-            // Validate form fields
-            if (!name) {
-                newErrorMessages.name = 'Please enter your company name.';
-            } else if (!companyNameRegex.test(name)) {
-                newErrorMessages.name = 'Company name should be alphanumeric, spaces, commas, apostrophes, or hyphens only.';
-            }
-        
-            if (!addressStreet) {
-                newErrorMessages.addressStreet = 'Please enter your street address.';
-            } else if (!addressStreetRegex.test(addressStreet)) {
-                newErrorMessages.addressStreet = 'Street address should be alphanumeric, spaces, commas, apostrophes, or hyphens only.';
-            }
-        
-            if (!addressCity) {
-                newErrorMessages.addressCity = 'Please enter your city name.';
-            } else if (!addressCityRegex.test(addressCity)) {
-                newErrorMessages.addressCity = 'City name should contain letters and optional hyphens only.';
-            }
-        
-            if (!addressState) {
-                newErrorMessages.addressState = 'Please enter your state abbreviation.';
-            } else if (!addressStateRegex.test(addressState)) {
-                newErrorMessages.addressState = 'State should be a two-letter abbreviation.';
-            }
-        
-            if (!addressZip) {
-                newErrorMessages.addressZip = 'Please enter your zip code.';
-            } else if (!addressZipRegex.test(addressZip)) {
-                newErrorMessages.addressZip = 'Zip code should be in the format of "xxxxx" or "xxxxx-xxxx".';
-            }
-        
-            if (!addressCountry) {
-                newErrorMessages.addressCountry = 'Please enter your country.';
-            }
-        
-            if (!phone) {
-                newErrorMessages.phone = 'Please enter your phone number.';
-            } else if (!phoneRegex.test(phone)) {
-                newErrorMessages.phone = 'Phone number should be a 1 to 12-digit number.';
-            }
-        
-            if (!email) {
-                newErrorMessages.email = 'Please enter your email address.';
-            } else if (!emailRegex.test(email)) {
-                newErrorMessages.email = 'Email address is not valid.';
-            }
-        
-            const hasError = Object.values(newErrorMessages).some(message => message !== '');
-        
-            if (hasError) {
-                setErrorMessage(newErrorMessages);
-                throw new Error('Please fix the errors above.');
-            }
+                // Validate form fields
+                if (!name) {
+                    newErrorMessages.name = 'Please enter your company name.';
+                } else if (!companyNameRegex.test(name)) {
+                    newErrorMessages.name = 'Company name should be alphanumeric, spaces, commas, apostrophes, or hyphens only.';
+                }
+            
+                if (!addressStreet) {
+                    newErrorMessages.addressStreet = 'Please enter your street address.';
+                } else if (!addressStreetRegex.test(addressStreet)) {
+                    newErrorMessages.addressStreet = 'Street address should be alphanumeric, spaces, commas, apostrophes, or hyphens only.';
+                }
+            
+                if (!addressCity) {
+                    newErrorMessages.addressCity = 'Please enter your city name.';
+                } else if (!addressCityRegex.test(addressCity)) {
+                    newErrorMessages.addressCity = 'City name should contain letters and optional hyphens only.';
+                }
+            
+                if (!addressState) {
+                    newErrorMessages.addressState = 'Please enter your state abbreviation.';
+                } else if (!addressStateRegex.test(addressState)) {
+                    newErrorMessages.addressState = 'State should be a two-letter abbreviation.';
+                }
+            
+                if (!addressZip) {
+                    newErrorMessages.addressZip = 'Please enter your zip code.';
+                } else if (!addressZipRegex.test(addressZip)) {
+                    newErrorMessages.addressZip = 'Zip code should be in the format of "xxxxx" or "xxxxx-xxxx".';
+                }
+            
+                if (!addressCountry) {
+                    newErrorMessages.addressCountry = 'Please enter your country.';
+                }
+            
+                if (!phone) {
+                    newErrorMessages.phone = 'Please enter your phone number.';
+                } else if (!phoneRegex.test(phone)) {
+                    newErrorMessages.phone = 'Phone number should be a 1 to 12-digit number.';
+                }
+            
+                if (!email) {
+                    newErrorMessages.email = 'Please enter your email address.';
+                } else if (!emailRegex.test(email)) {
+                    newErrorMessages.email = 'Email address is not valid.';
+                }
+            
+                const hasError = Object.values(newErrorMessages).some(message => message !== '');
+            
+                if (hasError) {
+                    setErrorMessage(newErrorMessages);
+                    throw new Error('Please fix the errors above.');
+                }
 
-            setStep(step + 1);
-            break
+                setStep(step + 1);
+                break
                 
             case 2:
                 // validate shareholders form fields here
-              if (shareholders.every((shareholder) => shareholder.name && shareholder.percentage)) {
-                setStep(step + 1);
-              } else {
-                throw new Error('Please fill in all required fields for shareholders.');
-              }
-              break;
+                if (shareholders.every((shareholder) => shareholder.name && shareholder.percentage)) {
+                    setStep(step + 1);
+                } else {
+                    throw new Error('Please fill in all required fields for shareholders.');
+                }
+                break;
       
             case 3:
-            // validate directors form fields here
-            if (directors.every((director) => director.name && (director.national_id || director.passport_no))) {
-                setStep(step + 1);
-              } else {
-                throw new Error('Please fill in all required fields for directors.');
-              }
-              break;
+                // validate directors form fields here
+                if (directors.every((director) => director.name && (director.national_id || director.passport_no))) {
+                    setStep(step + 1);
+                } else {
+                    throw new Error('Please fill in all required fields for directors.');
+                }
+                break;
       
             case 4:
-              // validate businesses form fields here
-              if (businesses.every((business) => business.name)) {
-                setStep(step + 1);
-              } else {
-                throw new Error('Please fill in all required fields for businesses.');
-              }
-              break;
+                // validate businesses form fields here
+                if (businesses.every((business) => business.name)) {
+                    setStep(step + 1);
+                } else {
+                    throw new Error('Please fill in all required fields for businesses.');
+                }
+                break;
       
             case 5:
               // validate required documents here
-              if (docUrls.doc1 && docUrls.doc2 && docUrls.doc3) {
-                setStep(step + 1);
-              } else {
-                throw new Error('Please upload all required documents.');
-              }
-              break;
               
-            case 6:
                 if (isAgreed) {
                     console.log("Process completed successfully");
                     setStep(step + 1);
-                  } else {
+                } else {
                     console.log("Please agree to the terms to complete the process");
-                  }
-              break;
+                }
+                
+                break;
             
             case 7:
 
                 setStep(step + 1);
-            // validate additional step here
-            // ...
-
-            break;
+                
+                break;
       
             default:
               break;
@@ -367,13 +374,14 @@ export default function RegistrationForm({uid}) {
                 },
             ]);
             console.log(companyData)
+            console.log(` Company created successfully`);
 
             if (companyError) {
                 throw companyError;
             }
 
             // Fetch company ID
-            const { data, errorId } = await supabase
+            const { data: companyIdData, errorId } = await supabase
                 .from("companies")
                 .select("id")
                 .order("created_at", { ascending: false })
@@ -381,8 +389,9 @@ export default function RegistrationForm({uid}) {
 
                 if (errorId) {
                 console.log("Error fetching company ID:", error);
-                } else if (data && data.length > 0) {
-                const companyId = data[0].id;
+                } else if (companyIdData && companyIdData.length > 0) {
+                
+                const companyId = companyIdData[0].id;
             
                 // Insert Shareholders
                 for (let i = 0; i < shareholders.length; i++) {
@@ -440,22 +449,53 @@ export default function RegistrationForm({uid}) {
                 }
                 
                 // Insert Required Documents
+                
+                const [file1NameParts, file2NameParts, file3NameParts] = [
+                    document1Url.name.split('.'),
+                    document2Url.name.split('.'),
+                    document3Url.name.split('.')
+                ];
+                const [file1Type, file2Type, file3Type] = [
+                    file1NameParts[file1NameParts.length - 1],
+                    file2NameParts[file2NameParts.length - 1],
+                    file3NameParts[file3NameParts.length - 1]
+                ];
+                const [fileName1, fileName2, fileName3] = [
+                    `${uuidv4()}.${file1Type}`,
+                    `${uuidv4()}.${file2Type}`,
+                    `${uuidv4()}.${file3Type}`
+                ];
+
+                const fileNames = [fileName1, fileName2, fileName3];
+                const documentUrls = [document1Url, document2Url, document3Url];
+
+                for (let i = 0; i < fileNames.length; i++) {
+                const { error } = await supabase.storage
+                    .from('documents')
+                    .upload(fileNames[i], documentUrls[i]);
+
+                if (error) {
+                    console.log(`Error uploading ${fileNames[i]}: ${error}`);
+                    return;
+                }
+                }
+                
                 const { data: docData, error: docError } = await supabase
-                    .from("required_documents")
+                    .from('required_documents')
                     .insert({
-                    doc1: docUrls.doc1,
-                    doc2: docUrls.doc2,
-                    doc3: docUrls.doc3,
+                    doc1: fileName1,
+                    doc2: fileName2,
+                    doc3: fileName3,
                     company_id: companyId,
                 });
-
+                
                 if (docError) {
-                    console.log("Error creating document:", docError);
-                    } else if (docData && docData.length > 0) {
-                    const companyId = docData[0].company_id;
-                    console.log("Created document with company ID:", companyId);
-                    } else {
-                    console.log("No data returned from insert operation");
+                    console.log('Error creating document:', docError);
+                } else if (docData && docData.length > 0) {
+                const companyId = docData[0].company_id;
+                console.log('Created document with company ID:', companyId);
+                } else {
+                console.log('No data returned from insert operation');
                 }
                 //End
 
@@ -503,9 +543,6 @@ export default function RegistrationForm({uid}) {
         handleSubmit();
         handleNext();
     }
-    const handleAgreementChange = (event) => {
-        setIsAgreed(event.target.checked);
-    };
 
     return (
         <section className="pt-12">
@@ -975,86 +1012,86 @@ export default function RegistrationForm({uid}) {
                     {step === 5 && (
                     //Required Documents & complete
                         <div className="w-full space-y-12">
-                                <form onSubmit={handleSubmit}>
-                                    <div className="grid grid-cols-3 gap-3 py-4">
-                                        <div className="col-span-3 sm:col-span-2 sm:grid sm:grid-cols-1 sm:items-start sm:gap-1">
-                                            <label className="block text-sm font-medium leading-6 text-gray-900 sm:col-1">
-                                                (1) Memorandum of Association, Memorandum of Association
-                                            </label>
-                                        </div>
-                                        <div className="flex flex-row items-center col-span-3 sm:col-span-1">
-                                            <input
-                                                className="relative flex-auto block w-full min-w-0 m-0 border border-solid rounded sm:w-full"
-                                                type="file"
-                                                accept=".pdf"
-                                                onChange={handleUploadDoc1}
-                                                disabled={uploading}
-                                            />
-                                            {docUrls.doc1 && (
-                                                <a
-                                                href={docUrls.doc1}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="ml-2"
-                                                >
-                                                Show
-                                                </a>
-                                            )}
-                                        </div>
+                            <form onSubmit={handleSubmit}>
+                                <div className="grid grid-cols-3 gap-3 py-4">
+                                    <div className="col-span-3 sm:col-span-2 sm:grid sm:grid-cols-1 sm:items-start sm:gap-1">
+                                        <label className="block text-sm font-medium leading-6 text-gray-900 sm:col-1">
+                                            (1) Please upload the Memorandum and Articles of Association for your company.
+                                        </label>
                                     </div>
-                                    <div className="grid grid-cols-3 gap-3 py-4">
-                                        <div className="col-span-3 sm:col-span-2 sm:grid sm:grid-cols-1 sm:items-start sm:gap-1">
-                                            <label className="block text-sm font-medium leading-6 text-gray-900 sm:col-1">
-                                                (2) Memorandum of Association, Memorandum of Association
-                                            </label>
-                                        </div>
-                                        <div className="flex flex-row items-center col-span-3 sm:col-span-1">
-                                            <input
-                                                className="relative flex-auto block w-full min-w-0 m-0 border border-solid rounded sm:w-full"
-                                                type="file"
-                                                accept=".pdf"
-                                                onChange={handleUploadDoc2}
-                                                disabled={uploading}
-                                            />
-                                            {docUrls.doc2 && (
-                                                <a
-                                                href={docUrls.doc2}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="ml-2"
-                                                >
-                                                Show
-                                                </a>
-                                            )}
-                                        </div>
+                                    <div className="flex flex-row items-center col-span-3 sm:col-span-1">
+                                        <input
+                                            className="relative flex-auto block w-full min-w-0 m-0 border border-solid rounded sm:w-full"
+                                            type="file"
+                                            accept=".pdf"
+                                            id="document1Url" 
+                                            onChange={handleFile1Upload}
+                                            required
+                                            disabled={uploading}
+                                        />
                                     </div>
-                                    <div className="grid grid-cols-3 gap-3 py-4">
-                                        <div className="col-span-3 sm:col-span-2 sm:grid sm:grid-cols-1 sm:items-start sm:gap-1">
-                                            <label className="block text-sm font-medium leading-6 text-gray-900 sm:col-1">
-                                                (3) Memorandum of Association, Memorandum of Association
-                                            </label>
-                                        </div>
-                                        <div className="flex flex-row items-center col-span-3 sm:col-span-1">
-                                            <input
-                                                className="relative flex-auto block w-full min-w-0 m-0 border border-solid rounded sm:w-full"
-                                                type="file"
-                                                accept=".pdf"
-                                                onChange={handleUploadDoc3}
-                                                disabled={uploading}
-                                            />
-                                            {docUrls.doc3 && (
-                                                <a
-                                                href={docUrls.doc3}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="ml-2"
-                                                >
-                                                Show
-                                                </a>
-                                            )}
-                                        </div>
+                                </div>
+                                <div className="grid grid-cols-3 gap-3 py-4">
+                                    <div className="col-span-3 sm:col-span-2 sm:grid sm:grid-cols-1 sm:items-start sm:gap-1">
+                                        <label className="block text-sm font-medium leading-6 text-gray-900 sm:col-1">
+                                            (2) Please upload a copy of the National Identification Card, passport, or any other certified identification certificate for each director.
+                                        </label>
                                     </div>
-                                </form>
+                                    <div className="flex flex-row items-center col-span-3 sm:col-span-1">
+                                        <input
+                                            className="relative flex-auto block w-full min-w-0 m-0 border border-solid rounded sm:w-full"
+                                            type="file"
+                                            accept=".pdf"
+                                            id="document2Url" 
+                                            onChange={handleFile2Upload}
+                                            required
+                                            disabled={uploading}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-3 gap-3 py-4">
+                                    <div className="col-span-3 sm:col-span-2 sm:grid sm:grid-cols-1 sm:items-start sm:gap-1">
+                                        <label className="block text-sm font-medium leading-6 text-gray-900 sm:col-1">
+                                            (3) Please upload a document for Presenting the main business objectives of the company
+                                        </label>
+                                    </div>
+                                    <div className="flex flex-row items-center col-span-3 sm:col-span-1">
+                                        <input
+                                            className="relative flex-auto block w-full min-w-0 m-0 border border-solid rounded sm:w-full"
+                                            type="file"
+                                            accept=".pdf"
+                                            id="document3Url" 
+                                            onChange={handleFile3Upload}
+                                            required
+                                            disabled={uploading}
+                                        />
+                                    </div>
+                                </div>
+                            </form>
+                            <div className="px-2 py-2">
+                                <label htmlFor="info-correct">
+                                    <input
+                                    type="checkbox"
+                                    id="info-correct"
+                                    checked={isInfoCorrect}
+                                    onChange={handleInfoCorrectChange}
+                                    required
+                                    />
+                                    &nbsp; &nbsp; Informations are correct and checked.
+                                </label>
+                            </div>
+                            <div className="px-2 py-2">
+                                <label htmlFor="agreement">
+                                    <input
+                                    type="checkbox"
+                                    id="agreement"
+                                    checked={isAgreed}
+                                    onChange={handleAgreementChange}
+                                    required
+                                    />
+                                        &nbsp; &nbsp; I agree to the terms and conditions.
+                                </label>
+                            </div>
                             <div className="flex items-center justify-end mt-6 gap-x-6">
                                 <button type="button" onClick={handleBack} className="text-sm font-semibold leading-6 text-gray-900">
                                 Back
@@ -1062,197 +1099,17 @@ export default function RegistrationForm({uid}) {
                                 <button
                                 type="submit"
                                 onClick={handleNextAndSubmit}
-                                disabled={loading}
+                                // disabled={loading}
+                                disabled={!isAgreed || !isInfoCorrect}
                                 className="px-3 py-2 text-sm font-semibold text-white btn-primary hover-up-2"
                                 >
-                                Next
+                                Submit
                                 </button>
                             </div>
                         </div>
                     )}
+
                     {step === 6 && (
-                    //Review
-                        <div class="container mx-auto px-4">
-                            <div class="sm:max-w-lg md:max-w-xl lg:max-w-4xl xl:max-w-6xl mx-auto">
-                                <div class="space-y-12">
-                                    <div class="overflow-hidden bg-white shadow sm:rounded-lg">
-                                        <div class="px-4 py-6 sm:px-6">
-                                            <h3 class="text-base font-semibold leading-7 text-gray-900">Applicant Information</h3>
-                                            <p class="max-w-2xl mt-1 text-sm leading-6 text-gray-500">Personal details and application.</p>
-                                        </div>
-                                        <div class="border-t border-gray-100"></div>
-                                        
-                                        <div className="border-t border-gray-100">
-                                            <dl className="divide-y divide-gray-100">
-                                               <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                                    <dt className="text-sm font-medium leading-6 text-gray-900">Registration Level</dt>
-                                                    <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{selectedOption}{selectedDistrict}</dd>
-                                                </div>
-
-                                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                                    <dt className="text-sm font-medium leading-6 text-gray-900">Company Name</dt>
-                                                    <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{name}</dd>
-                                                </div>
-                                            
-                                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                                    <dt className="text-sm font-medium leading-6 text-gray-900">Address</dt>
-                                                    <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                                                        {[ addressStreet, addressCity, addressState, addressZip, addressCountry
-                                                        ].filter(Boolean).join(", ")}</dd>
-                                                </div>
-                                                
-                                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                                    <dt className="text-sm font-medium leading-6 text-gray-900">Phone Number</dt>
-                                                    <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{phone}</dd>
-                                                </div>
-                                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                                    <dt className="text-sm font-medium leading-6 text-gray-900">Email</dt>
-                                                    <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{email}</dd>
-                                                </div>
-                                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                                    <dt className="text-sm font-medium leading-6 text-gray-900">Shareholder Lists</dt>
-                                                    <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                                                        {shareholders.map((shareholder, index) => (
-                                                        <div key={index}>
-                                                            <p>Shareholder Name: {shareholder.name}</p>
-                                                            <p>Percentage: {shareholder.percentage}</p>
-                                                        </div>
-                                                        ))}
-                                                    </dd>
-                                                </div>
-                                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                                    <dt className="text-sm font-medium leading-6 text-gray-900">Directors</dt>
-                                                    <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                                                        {directors.map((director, index) => (
-                                                        <div key={index}>
-                                                            <p>Director Name: {director.name}</p>
-                                                            <p>National ID: {director.national_id}</p>
-                                                            <p>Passport Number: {director.passport_no}</p><br></br>
-                                                        </div>
-                                                        ))}
-                                                    </dd>
-                                                </div>
-                                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                                    <dt className="text-sm font-medium leading-6 text-gray-900">Business Lists</dt>
-                                                    <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                                                        {businesses.map((business, index) => (
-                                                        <div key={index}>
-                                                            <p>Business Name: {business.name}</p>
-                                                        </div>
-                                                        ))}
-                                                    </dd>
-                                                </div>
-                                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                                                    <dt className="text-sm font-medium leading-6 text-gray-900">Attachments</dt>
-                                                    <dd className="mt-2 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-                                                        <ul role="list" className="border border-gray-200 divide-y divide-gray-100 rounded-md">
-                                                            <li className="flex items-center justify-between py-4 pl-4 pr-5 text-sm leading-6">
-                                                                <div className="flex items-center flex-1 w-0">
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13" />
-                                                                    </svg>
-
-                                                                    <div className="flex flex-1 min-w-0 gap-2 ml-4">
-                                                                    <span className="font-medium truncate">(1) Memorandum of Association, Memorandum of Association</span>
-                                                                    {/* <span className="font-medium truncate">{docUrls.doc1 && ( <p>{docUrls.doc1}</p> )}</span> */}
-                                                                    </div>
-                                                                </div>
-                                                                <div className="flex-shrink-0 ml-4">
-                                                                    {docUrls.doc1 && (
-                                                                        <a
-                                                                        href={docUrls.doc1}
-                                                                        target="_blank"
-                                                                        rel="noopener noreferrer"
-                                                                        className="font-medium text-blue-600 hover:text-blue-500"
-                                                                        >
-                                                                        Download
-                                                                        </a>
-                                                                    )}  
-                                                                </div>
-                                                            </li>
-                                                            <li className="flex items-center justify-between py-4 pl-4 pr-5 text-sm leading-6">
-                                                                <div className="flex items-center flex-1 w-0">
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13" />
-                                                                    </svg>
-
-                                                                    <div className="flex flex-1 min-w-0 gap-2 ml-4">
-                                                                    <span className="font-medium truncate">(2) Memorandum of Association, Memorandum of Association</span>
-                                                                    </div>
-                                                                </div>
-                                                                <div className="flex-shrink-0 ml-4">
-                                                                    {docUrls.doc2 && (
-                                                                        <a
-                                                                        href={docUrls.doc2}
-                                                                        target="_blank"
-                                                                        rel="noopener noreferrer"
-                                                                        className="font-medium text-blue-600 hover:text-blue-500"
-                                                                        >
-                                                                        Download
-                                                                        </a>
-                                                                    )}  
-                                                                </div>
-                                                            </li>
-                                                            <li className="flex items-center justify-between py-4 pl-4 pr-5 text-sm leading-6">
-                                                                <div className="flex items-center flex-1 w-0">
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13" />
-                                                                    </svg>
-
-                                                                    <div className="flex flex-1 min-w-0 gap-2 ml-4">
-                                                                    <span className="font-medium truncate">(3) Memorandum of Association, Memorandum of Association</span>
-                                                                    </div>
-                                                                </div>
-                                                                <div className="flex-shrink-0 ml-4">
-                                                                    {docUrls.doc3 && (
-                                                                        <a
-                                                                        href={docUrls.doc3}
-                                                                        target="_blank"
-                                                                        rel="noopener noreferrer"
-                                                                        className="font-medium text-blue-600 hover:text-blue-500"
-                                                                        >
-                                                                        Download
-                                                                        </a>
-                                                                    )}  
-                                                                </div>
-                                                            </li>
-                                                        </ul>
-                                                    </dd>
-                                                </div>
-                                            </dl>
-                                        </div>
-                                    </div>
-                                    <div className="px-2 py-2">
-                                        <label htmlFor="agreement">
-                                            <input
-                                            type="checkbox"
-                                            id="agreement"
-                                            checked={isAgreed}
-                                            onChange={handleAgreementChange}
-                                            required
-                                            />
-                                                &nbsp; &nbsp; I agree to the terms and conditions.
-                                        </label>
-                                    </div>
-                                </div>
-                                <div className="flex items-center justify-end mt-6 gap-x-6">
-                                    <button type="button" onClick={handleBack} className="text-sm font-semibold leading-6 text-gray-900">
-                                    Back
-                                    </button>
-                                    <button
-                                    type="submit"
-                                    onClick={handleNext}
-                                    disabled={loading}
-                                    className="px-3 py-2 text-sm font-semibold text-white btn-primary hover-up-2"
-                                    >
-                                    Next
-                                    </button>
-                                </div>
-                            </div>
-                        </div>    
-                    )}
-
-                    {step === 7 && (
                         //Complete
                         <div className="flex flex-col items-center space-y-12">
                             <h1 className="text-3xl font-bold text-gray-900">Registration Completed!</h1>
