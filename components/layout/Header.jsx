@@ -152,17 +152,26 @@ const Header = ({handleHidden}) => {
                                 </Link>
                             </li>
                         </ul>
+                       
                         <div className="hidden lg:block">
                             {!user && (
                             <Link href="/login" legacyBehavior>
                                 <a className="btn-primary hover-up-2">Log In</a>
                             </Link>
+                            )}
+
+                            {user && (
+                                <Link href="/users/dashboard" legacyBehavior>
+                                    <a className="px-4 text-sm font-semibold text-blueGray-600 hover:text-blueGray-500">
+                                        Dashboard
+                                    </a>
+                                </Link>
                              )}
-                             {user && (
-                                
-                                <button onClick={() => supabaseClient.auth.signOut()} className="btn-primary hover-up-2">Sign Out</button>
-                            
-                             )}
+                             
+                            {user && (
+                            <button onClick={() => supabaseClient.auth.signOut()} className="btn-primary hover-up-2">Sign Out</button>
+                            )}
+
                             {/* {!user && (
                             <Link href="/signup" legacyBehavior>
                                 <a className="btn-primary hover-up-2">

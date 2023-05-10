@@ -2,6 +2,7 @@ import Link from "next/link";
 import { useState, useEffect } from 'react'
 import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
 import Avatar from '/components/users/Avatar.js'
+import { DocumentAdd, DocumentDuplicate, Home, Key, UserAdd } from "heroicons-react";
 
 export default function UserProfile( { session } ) {
   const supabase = useSupabaseClient()
@@ -77,27 +78,46 @@ export default function UserProfile( { session } ) {
             Auth UI is a pre-built React component for authenticating users. It supports custom themes and extensible styles to match your brand and aesthetic.
             </p>
             <ul className="py-10">
-                <li className="py-3">
-                    <Link href="/company_registration" legacyBehavior>
-                        <a className="text-sm text-blueGray-600 hover:text-blueGray-500">
-                            Company/Business Registration
-                        </a>
-                    </Link>
-                </li>
-                <li className="py-3">
-                    <Link href="/business_registration" legacyBehavior>
-                        <a className="text-sm text-blueGray-600 hover:text-blueGray-500">
-                            Small/Enterprises Registration
-                        </a>
-                    </Link>
-                </li>
-                <li className="py-3">
-                    <Link href="/license_registration" legacyBehavior>
-                        <a className="text-sm text-blueGray-600 hover:text-blueGray-500">
-                            Business License Registration 
-                        </a>
-                    </Link>
-                </li>
+              <li className="flex items-center py-3">
+                  <Home className="w-5 h-5 mr-2 text-blueGray-400" />
+                  <Link href="/users/dashboard" legacyBehavior>
+                      <a className="text-sm text-blueGray-600 hover:text-blueGray-500">
+                        Dashboard
+                      </a>
+                  </Link>
+              </li>
+              <li className="flex items-center py-3">
+                  <UserAdd className="w-5 h-5 mr-2 text-blueGray-400" />
+                  <Link href="/users/profile" legacyBehavior>
+                      <a className="text-sm text-blueGray-600 hover:text-blueGray-500">
+                      Profile
+                      </a>
+                  </Link>
+              </li>
+              <li className="flex items-center py-3">
+                  <DocumentAdd className="w-5 h-5 mr-2 text-blueGray-400" />
+                  <Link href="/company_registration" legacyBehavior>
+                      <a className="text-sm text-blueGray-600 hover:text-blueGray-500">
+                      Company Registration
+                      </a>
+                  </Link>
+              </li>
+              <li className="flex items-center py-3">
+                  <DocumentDuplicate className="w-5 h-5 mr-2 text-blueGray-400" />
+                  <Link href="/business_registration" legacyBehavior>
+                      <a className="text-sm text-blueGray-600 hover:text-blueGray-500">
+                      Business Registration
+                      </a>
+                  </Link>
+              </li>
+              <li className="flex items-center py-3">
+                  <Key className="w-5 h-5 mr-2 text-blueGray-400" />
+                  <Link href="/business_registration" legacyBehavior>
+                      <a className="text-sm text-blueGray-600 hover:text-blueGray-500">
+                      Business License Registration
+                      </a>
+                  </Link>
+              </li>
             </ul>
           </div>
   
