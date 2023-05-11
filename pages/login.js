@@ -48,15 +48,24 @@ const Login = () => {
                                     <span className="text-sm text-blueGray-400">Sign In</span>
                                     <h4 className="mb-6 text-3xl">Sign in to your Account</h4>
                                     
-                                    <Auth supabaseClient={supabase} appearance={{ theme: ThemeSupa, 
-                                        variables: {
-                                        default: {
-                                        colors: {
+                                    <Auth
+                                        supabaseClient={supabase}
+                                        // providers={['google']}
+                                        socialLayout="horizontal"
+                                        socialButtonSize="xlarge"
+                                        redirectTo="/"
+                                        appearance={{
+                                            theme: ThemeSupa,
+                                            variables: {
+                                            default: {
+                                                colors: {
                                                 brand: '#1E90FF',
                                                 brandAccent: '#00BFFF',
                                                 },
                                             },
-                                        } }} socialLayout="horizontal" 
+                                            },
+                                        }}
+                                        onSuccess={() => router.push('/')}
                                     />
                                 </div>
                             </div>

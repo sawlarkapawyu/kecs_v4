@@ -4,10 +4,20 @@ import Dashboard from '/components/users/dashboard.js';
 import { Auth } from '@supabase/auth-ui-react'
 import { ThemeSupa } from '@supabase/auth-ui-shared'
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react'
+import { useRouter } from 'next/router'
+import { useEffect } from 'react';
 
 const UserDashboard = () => {
     const session = useSession()
     const supabase = useSupabaseClient()
+    const router = useRouter()
+    
+    useEffect(() => {
+        if (!session) {
+          router.push('/login');
+        }
+    }, [session, router]);
+
     return (
         <>
             <Layout>
@@ -36,11 +46,7 @@ const UserDashboard = () => {
 
             <section className="py-20">
                 <div className="container">
-                    {!session ? (
-                        <Auth supabaseClient={supabase} appearance={{ theme: ThemeSupa }} />
-                    ) : (
-                        <Dashboard session={session} />
-                    )}
+                    {session ? <Dashboard session={session} /> : null}
                 </div>
             </section>
             </Layout>

@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Auth } from '@supabase/auth-ui-react'
 import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useRouter } from "next/router";
-
+import { LoginOutline, LogoutOutline } from "heroicons-react";
 
 const MobileMenu = ({ hiddenClass, handleRemove }) => {
 
@@ -121,22 +121,26 @@ const MobileMenu = ({ hiddenClass, handleRemove }) => {
                         </ul>
                         <div className="pt-6 mt-4 border-t border-blueGray-100">
                             {!user && (
-                            // <Link href="/signup" legacyBehavior>
-                            //     <a className="block px-4 py-3 mb-3 text-xs font-semibold leading-none text-center text-white bg-blue-400 rounded hover:bg-blue-500">Sign Up</a>
-                            // </Link>
-                            <Link href="/login" legacyBehavior>
+                                <Link href="/login" legacyBehavior>
                                 <a className="block px-4 py-3 mb-2 text-xs font-semibold leading-none text-center text-blue-500 border border-blue-200 rounded hover:text-blue-700 hover:border-blue-300">Log In</a>
-                            </Link>
+                                </Link>
                             )}
                             {user && (
-                               
-                               <button onClick={() => supabaseClient.auth.signOut()} className="btn-primary hover-up-2">Sign Out</button>
-                           
+                                <div className="flex">
+                                    <Link href="/dashboard">
+                                        <button className="flex items-center gap-2 px-2 py-3 text-sm font-semibold rounded-md text-blueGray-600 bg-primary hover:bg-primary-dark">
+                                        Dashboard
+                                        </button>
+                                    </Link>
+                                    <button 
+                                    onClick={() => supabaseClient.auth.signOut()} 
+                                    className="flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-md text-blueGray-600 bg-primary hover:bg-primary-dark"
+                                    >
+                                        <LogoutOutline className="w-6 h-6" />
+                                        Log Out
+                                    </button>
+                                </div>
                             )}
-                            <select id="locale-select" style={{border: 'none', outline: 'none', backgroundColor: 'transparent', padding: 20}}>
-                                <option value="en">English</option>
-                                <option value="mm">Myanmar</option>
-                            </select>
                         </div>
                     </div>
                     <div className="mt-auto">

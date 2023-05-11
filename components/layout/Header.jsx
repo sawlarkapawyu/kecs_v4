@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Auth } from '@supabase/auth-ui-react'
 import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useRouter } from "next/router";
+import { LoginOutline, LogoutOutline } from "heroicons-react";
 
 const Header = ({handleHidden}) => {
     const [scroll, setScroll] = useState(0)
@@ -155,35 +156,30 @@ const Header = ({handleHidden}) => {
                        
                         <div className="hidden lg:block">
                             {!user && (
-                            <Link href="/login" legacyBehavior>
-                                <a className="btn-primary hover-up-2">Log In</a>
-                            </Link>
-                            )}
-
-                            {user && (
-                                <Link href="/users/dashboard" legacyBehavior>
-                                    <a className="px-4 text-sm font-semibold text-blueGray-600 hover:text-blueGray-500">
-                                        Dashboard
-                                    </a>
+                                <Link href="/login" legacyBehavior>
+                                    <button className="flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-md text-blueGray-600 bg-primary hover:bg-primary-dark">
+                                        <LoginOutline className="w-6 h-6" />
+                                        <span>Log In</span>
+                                    </button>
                                 </Link>
-                             )}
-                             
-                            {user && (
-                            <button onClick={() => supabaseClient.auth.signOut()} className="btn-primary hover-up-2">Sign Out</button>
                             )}
-
-                            {/* {!user && (
-                            <Link href="/signup" legacyBehavior>
-                                <a className="btn-primary hover-up-2">
-                                    Sign Up
-                                </a>
-                            </Link>
-                             )} */}
-                            {/* <select id="locale-select" style={{border: 'none', outline: 'none', backgroundColor: 'transparent', padding: 30}}>
-                                <option value="en">English</option>
-                                <option value="mm">Myanmar</option>
-                            </select> */}
                             
+                            {user && (
+                            <div className="flex gap-4">
+                                <Link href="/dashboard">
+                                    <button className="flex items-center gap-2 px-2 py-3 text-sm font-semibold rounded-md text-blueGray-600 bg-primary hover:bg-primary-dark">
+                                        Dashboard
+                                    </button>
+                                </Link>
+                                <button 
+                                onClick={() => supabaseClient.auth.signOut()} 
+                                className="flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-md text-blueGray-600 bg-primary hover:bg-primary-dark"
+                                >
+                                <LogoutOutline className="w-6 h-6" />
+                                Log Out
+                                </button>
+                            </div>
+                            )}
                         </div>
                         
                         {/* <div className="hover-up-2" style={{border: '1px solid rgba(0, 0, 0, 0.2)', borderRadius: '5px', padding: '0px'}}>
