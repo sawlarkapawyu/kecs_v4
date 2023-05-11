@@ -3,18 +3,29 @@ import Layout from '../../components/layout/Layout';
 import CounterUp from "../../components/elements/Counterup"
 import { useState } from 'react';
 import { useRouter } from 'next/router';
+import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
 
 const CompanyRegistration = () => {
+    const router = useRouter();
+    const supabase = useSupabaseClient();
+    const user = useUser();
+    
     const [selectedOption, setSelectedOption] = useState(null);
     const [selectedDistrict, setSelectedDistrict] = useState("");
-    const router = useRouter();
-
+    
+    
     const handleOptionChange = (e) => {
         setSelectedOption(e.target.value);
     }
     
     const handleSubmit = (e) => {
         e.preventDefault();
+    
+        if (!user) {
+            // redirect to registration page if user is not registered
+            router.push('/signup');
+            return;
+        }
         
         if (selectedOption === 'central') {
             router.push(`/company_registration/form?selectedOption=${selectedOption}`);

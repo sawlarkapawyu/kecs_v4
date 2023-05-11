@@ -2,6 +2,10 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/login": "pages/login.js",
-  "/": "pages/index.js"
+  "/business_registration": "pages/business_registration.js",
+  "/business_registration/form": "pages/business_registration/form.js",
+  "/": "pages/index.js",
+  "/signup": "pages/signup.js",
+  "/users/dashboard": "pages/users/dashboard.js",
+  "/login": "pages/login.js"
 }

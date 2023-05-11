@@ -3,12 +3,16 @@ import Layout from '../../components/layout/Layout';
 import CounterUp from "../../components/elements/Counterup"
 import { useState } from 'react';
 import { useRouter } from 'next/router';
+import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
 
 const BusinessRegistration = () => {
+    const router = useRouter();
+    const supabase = useSupabaseClient();
+    const user = useUser();
+
     const [selectedOption, setSelectedOption] = useState(null);
     const [selectedType, setSelectedType] = useState(null);
     const [selectedDistrict, setSelectedDistrict] = useState("");
-    const router = useRouter();
 
     const handleOptionChange = (e) => {
         setSelectedOption(e.target.value);
@@ -20,6 +24,12 @@ const BusinessRegistration = () => {
     
     const handleSubmit = (e) => {
         e.preventDefault();
+        
+        if (!user) {
+            // redirect to registration page if user is not registered
+            router.push('/signup');
+            return;
+        }
         
         if (selectedOption === 'central' && selectedType) {
             router.push(`/business_registration/form?selectedOption=${selectedOption}&selectedType=${selectedType}`);

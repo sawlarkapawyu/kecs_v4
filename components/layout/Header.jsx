@@ -166,7 +166,7 @@ const Header = ({handleHidden}) => {
                             
                             {user && (
                             <div className="flex gap-4">
-                                <Link href="/dashboard">
+                                <Link href="/users/dashboard">
                                     <button className="flex items-center gap-2 px-2 py-3 text-sm font-semibold rounded-md text-blueGray-600 bg-primary hover:bg-primary-dark">
                                         Dashboard
                                     </button>

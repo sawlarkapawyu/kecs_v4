@@ -30,10 +30,30 @@
       "static/chunks/main.js",
       "static/chunks/pages/_error.js"
     ],
+    "/business_registration": [
+      "static/chunks/webpack.js",
+      "static/chunks/main.js",
+      "static/chunks/pages/business_registration.js"
+    ],
+    "/business_registration/form": [
+      "static/chunks/webpack.js",
+      "static/chunks/main.js",
+      "static/chunks/pages/business_registration/form.js"
+    ],
     "/login": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
       "static/chunks/pages/login.js"
+    ],
+    "/signup": [
+      "static/chunks/webpack.js",
+      "static/chunks/main.js",
+      "static/chunks/pages/signup.js"
+    ],
+    "/users/dashboard": [
+      "static/chunks/webpack.js",
+      "static/chunks/main.js",
+      "static/chunks/pages/users/dashboard.js"
     ]
   },
   "ampFirstPages": []
