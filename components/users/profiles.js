@@ -112,7 +112,7 @@ export default function UserProfile( { session } ) {
               </li>
               <li className="flex items-center py-3">
                   <Key className="w-5 h-5 mr-2 text-blueGray-400" />
-                  <Link href="/business_registration" legacyBehavior>
+                  <Link href="#" legacyBehavior>
                       <a className="text-sm text-blueGray-600 hover:text-blueGray-500">
                       Business License Registration
                       </a>

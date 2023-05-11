@@ -74,7 +74,7 @@ const MobileMenu = ({ hiddenClass, handleRemove }) => {
                                         </Link>
                                     </li>
                                     <li>
-                                        <Link href="/license_registration" legacyBehavior>
+                                        <Link href="#" legacyBehavior>
                                             <a className="block p-3 text-sm text-blueGray-500 hover:bg-blue-50 hover:text-blue-500">Business License Registration</a>
                                         </Link>
                                     </li>

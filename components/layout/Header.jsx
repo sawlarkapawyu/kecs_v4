@@ -77,7 +77,7 @@ const Header = ({handleHidden}) => {
                                         </Link>
                                     </li>
                                     <li>
-                                        <Link href="/license_registration" legacyBehavior>
+                                        <Link href="#" legacyBehavior>
                                             <a className="text-sm menu-sub-item text-blueGray-600 hover:text-blueGray-500">
                                                 Business License Registration 
                                             </a>

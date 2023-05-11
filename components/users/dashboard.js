@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { useState, useEffect } from 'react'
 import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
-import { DocumentAdd, DocumentDuplicate, Key, UserAdd, Home } from "heroicons-react";
+import { DocumentAdd, DocumentDuplicate, Key, UserAdd, Home, ArrowUp, ArrowDown, ChevronDown, ChevronUp } from "heroicons-react";
 import { useRouter } from 'next/router'
 
 export default function UserProfile( { session } ) {
@@ -239,7 +239,7 @@ export default function UserProfile( { session } ) {
                     </li>
                     <li className="flex items-center py-3">
                         <Key className="w-5 h-5 mr-2 text-blueGray-400" />
-                        <Link href="/business_registration" legacyBehavior>
+                        <Link href="#" legacyBehavior>
                             <a className="text-sm text-blueGray-600 hover:text-blueGray-500">
                             Business License Registration
                             </a>
@@ -271,9 +271,10 @@ export default function UserProfile( { session } ) {
                             {company ? (
                             <div className="grid grid-cols-3 gap-4">
                                 <div className="col-span-2 p-4 rounded-md sm:col-span-2">
-                                    <div className="grid grid-cols-2 text-sm">
-                                        {showAll ? (
-                                        <>  
+                                   
+                                    {showAll ? (
+                                    <> 
+                                        <div className="grid grid-cols-2 text-sm">
                                             <div className="flex flex-col py-1 sm:w-1/3">
                                                 <div className="py-1 font-semibold text-gray-700">Registration Level:</div>
                                             </div>
@@ -300,36 +301,49 @@ export default function UserProfile( { session } ) {
                                             <div className="flex flex-col py-1 sm:w-2/3">
                                                 <div className="py-1">{company.phone}</div>
                                             </div>
-                                           
+                                        
                                             <div className="flex flex-col py-1 sm:w-1/3">
                                                 <div className="py-1 font-semibold text-gray-700">Company Email:</div>
                                             </div>
                                             <div className="flex flex-col py-1 sm:w-2/3">
                                                 <div className="py-1">{company.email}</div>
                                             </div>
+                                        </div>
 
-                                            <div className="flex flex-col py-1 sm:w-1/3">
-                                                <div className="py-1 font-semibold text-gray-700">Shareholders List:</div>
-                                            </div>
-                                            <div className="flex flex-col py-1 sm:w-2/3">
-                                                {company.shareholderslist ? company.shareholderslist.map((shareholder, index) => (
-                                                <div key={index} className="col-span-1 py-1">
-                                                    {shareholder.name} - {shareholder.percentage} % {' '}
+                                        {company.shareholderslist && (
+                                            <div className="grid grid-cols-2 text-sm">
+                                                <div className="col-span-2 py-4 font-semibold text-gray-800 border-b-2 border-gray-300">Shareholders Information</div>
+                                                <div className="flex flex-col py-1 sm:w-1/3">
+                                                    <div className="py-1 font-semibold text-gray-700">Shareholders List:</div>
                                                 </div>
-                                                )) : null}
+                                                <div className="flex flex-col py-1 sm:w-2/3">
+                                                    {company.shareholderslist.map((shareholder, index) => (
+                                                        <div key={index} className="col-span-1 py-1">
+                                                            {shareholder.name} - {shareholder.percentage} %
+                                                        </div>
+                                                    ))}
+                                                </div>
                                             </div>
-
+                                        )}
+                                        
+                                        <div className="grid grid-cols-2 text-sm">
+                                            <div className="col-span-2 py-4 font-semibold text-gray-800 border-b-2 border-gray-300">Directors Information</div>
                                             <div className="flex flex-col py-1 sm:w-1/3">
                                                 <div className="py-1 font-semibold text-gray-700">Directors List:</div>
                                             </div>
+                                            
                                             <div className="flex flex-col py-1 sm:w-2/3">
                                                 {company.directorslist ? company.directorslist.map((director, index) => (
                                                 <div key={index} className="py-1">
                                                     {director.name} - {director.national_id} - {director.passport_no} {' '}
                                                 </div>
-                                                )) : null}
+                                                  )) : null}
                                             </div>
-
+                                           
+                                        </div>
+                                       
+                                        <div className="grid grid-cols-2 text-sm">
+                                            <div className="col-span-2 py-4 font-semibold text-gray-800 border-b-2 border-gray-300">Business List Information</div>
                                             <div className="flex flex-col py-1 sm:w-1/3">
                                                 <div className="py-1 font-semibold text-gray-700">Business List:</div>
                                             </div>
@@ -338,14 +352,18 @@ export default function UserProfile( { session } ) {
                                                 <div key={index} className="py-1">
                                                     {business.name} {' '}
                                                 </div>
-                                                )) : null}  
+                                                 )) : null}  
                                             </div>
-
+                                           
+                                        </div>
+                                        
+                                        <div className="grid grid-cols-2 text-sm">
+                                            <div className="col-span-2 py-4 font-semibold text-gray-800 border-b-2 border-gray-300">Documents Required Information</div>
                                             <div className="flex flex-col py-1 sm:w-1/3">
                                                 <div className="py-1 font-semibold text-gray-700">Required Documents:</div>
                                             </div>
+                                            {company.required_documents ? company.required_documents.map((documnet, index) => (
                                             <div className="flex flex-col py-1 sm:w-2/3">
-                                                {company.required_documents ? company.required_documents.map((documnet, index) => (
                                                 <div key={index}>
                                                     <div className="flex items-center py-1">
                                                         <div className="flex-shrink-0">
@@ -372,58 +390,52 @@ export default function UserProfile( { session } ) {
                                                         </div>
                                                     </div>
                                                 </div>
-
-                                                )) : null}  
                                             </div>
-
-                                        </>
-                                        ) : (
-                                        <>
-                                            <div className="flex flex-col py-1 sm:w-1/3">
-                                                <div className="py-1 font-semibold text-gray-700">Registration Level:</div>
-                                            </div>
-                                            <div className="flex flex-col py-1 sm:w-2/3">
-                                                <div className="py-1">{company.registration_level}{company.district}</div>
-                                            </div>
-
-                                            <div className="flex flex-col py-1 sm:w-1/3">
-                                                <div className="py-1 font-semibold text-gray-700">Company Name:</div>
-                                            </div>
-                                            <div className="flex flex-col py-1 sm:w-2/3">
-                                                <div className="py-1">{company.name}</div>
-                                            </div>
-
-                                            <div className="flex flex-col py-1 sm:w-1/3">
-                                                <div className="py-1 font-semibold text-gray-700">Company Address:</div>
-                                            </div>
-                                            <div className="flex flex-col py-1 sm:w-2/3">
-                                                <div className="py-1">{[company.address_street, company.addressCity, company.address_state, company.address_zip, company.address_country].filter(Boolean).join(", ")}</div>
-                                            </div>
-
-                                            <div className="flex flex-col py-1 sm:w-1/3">
-                                                <div className="py-1 font-semibold text-gray-700">Company Phone:</div>
-                                            </div>
-                                            <div className="flex flex-col py-1 sm:w-2/3">
-                                                <div className="py-1">{company.phone}</div>
-                                            </div>
-                                           
-                                            <div className="flex flex-col py-1 sm:w-1/3">
-                                                <div className="py-1 font-semibold text-gray-700">Company Email:</div>
-                                            </div>
-                                            <div className="flex flex-col py-1 sm:w-2/3">
-                                                <div className="py-1">{company.email}</div>
-                                            </div>
-                                        </>
-                                        )}
-                                        <div className="col-span-2 py-4 text-center">
-                                            <button
-                                            className="font-semibold text-blue-900"
-                                            onClick={toggleShowAll}
-                                            >
-                                            {showAll ? 'Less' : 'More'}
-                                            </button>
+                                             )) : null}  
                                         </div>
+                                       
+
+                                    </>
+                                    ) : (
+                                    <>
+                                        <div className="flex flex-col py-1 sm:w-1/3">
+                                            <div className="py-1 font-semibold text-gray-700">Registration Level:</div>
+                                        </div>
+                                        <div className="flex flex-col py-1 sm:w-2/3">
+                                            <div className="py-1">{company.registration_level}{company.district}</div>
+                                        </div>
+
+                                        <div className="flex flex-col py-1 sm:w-1/3">
+                                            <div className="py-1 font-semibold text-gray-700">Company Name:</div>
+                                        </div>
+                                        <div className="flex flex-col py-1 sm:w-2/3">
+                                            <div className="py-1">{company.name}</div>
+                                        </div>
+
+                                        <div className="flex flex-col py-1 sm:w-1/3">
+                                            <div className="py-1 font-semibold text-gray-700">Company Address:</div>
+                                        </div>
+                                        <div className="flex flex-col py-1 sm:w-2/3">
+                                            <div className="py-1">{[company.address_street, company.addressCity, company.address_state, company.address_zip, company.address_country].filter(Boolean).join(", ")}</div>
+                                        </div>
+                                    </>
+                                    )}
+                                    <div className="col-span-2 py-4 text-center">
+                                        <button className="flex items-center font-semibold text-blue-900" onClick={toggleShowAll}>
+                                            {showAll ? (
+                                            <>
+                                                <span>Show less</span>
+                                                <ChevronUp className="ml-2" />
+                                            </>
+                                            ) : (
+                                            <>
+                                                <span>Show more</span>
+                                                <ChevronDown className="ml-2" />
+                                            </>
+                                            )}
+                                        </button>
                                     </div>
+                                   
                                 </div>
                                 <div className="flex flex-col items-center justify-center p-4 bg-gray-100 rounded-md sm:col-span-1">
                                     <div className="flex items-center justify-center w-20 h-8">
@@ -463,20 +475,20 @@ export default function UserProfile( { session } ) {
                             {business ? (
                             <div className="grid grid-cols-3 gap-4">
                                 <div className="col-span-2 p-4 rounded-md sm:col-span-2">
-                                    <div className="grid grid-cols-2 text-sm">
                                         {showAllBusiness ? (
                                         <>  
                                             {/* Owner */}
                                             {business.business_owner ? business.business_owner.map((owner, index) => (
-                                            <div key={index}>
+                                            <div key={index} className="grid grid-cols-2 text-sm">
+                                                <div className="col-span-2 py-4 font-semibold text-gray-800 border-b-2 border-gray-300">Business Owner Information</div>
                                                 <div className="flex flex-col py-1 sm:w-1/3">
-                                                    <div className="py-1 font-semibold text-gray-700">owner_name_mm:</div>
+                                                    <div className="py-1 font-semibold text-gray-700">owner name_mm:</div>
                                                 </div>
                                                 <div className="flex flex-col py-1 sm:w-2/3">
                                                     <div className="py-1">{owner.owner_name_mm}</div>
                                                 </div>
                                                 <div className="flex flex-col py-1 sm:w-1/3">
-                                                    <div className="py-1 font-semibold text-gray-700">owner_name_eng:</div>
+                                                    <div className="py-1 font-semibold text-gray-700">owner name_eng:</div>
                                                 </div>
                                                 <div className="flex flex-col py-1 sm:w-2/3">
                                                     <div className="py-1">{owner.owner_name_eng}</div>
@@ -516,67 +528,76 @@ export default function UserProfile( { session } ) {
                                             )) : null}
 
                                             {/* Business */}
-                                            <div className="flex flex-col py-1 sm:w-1/3">
-                                                <div className="py-1 font-semibold text-gray-700">Registration Type:</div>
-                                            </div>
-                                            <div className="flex flex-col py-1 sm:w-2/3">
-                                                <div className="py-1">{business.registration_type}</div>
-                                            </div>
-                                            <div className="flex flex-col py-1 sm:w-1/3">
-                                                <div className="py-1 font-semibold text-gray-700">Registration Level:</div>
-                                            </div>
-                                            <div className="flex flex-col py-1 sm:w-2/3">
-                                                <div className="py-1">{business.registration_level}{business.district}</div>
-                                            </div>
-                                            <div className="flex flex-col py-1 sm:w-1/3">
-                                                <div className="py-1 font-semibold text-gray-700">Existing Registration ID:</div>
-                                            </div>
-                                            <div className="flex flex-col py-1 sm:w-2/3">
-                                                <div className="py-1">{business.exist_reg_id}</div>
-                                            </div>
-                                            <div className="flex flex-col py-1 sm:w-1/3">
-                                                <div className="py-1 font-semibold text-gray-700">Business Type:</div>
-                                            </div>
-                                            <div className="flex flex-col py-1 sm:w-2/3">
-                                                <div className="py-1">{business.type}</div>
-                                            </div>
+                                            <div className="grid grid-cols-2 text-sm">
+                                            <div className="col-span-2 py-4 font-semibold text-gray-800 border-b-2 border-gray-300">Business Information</div>
+                                                <div className="flex flex-col py-1 sm:w-1/3">
+                                                    <div className="py-1 font-semibold text-gray-700">Registration Type:</div>
+                                                </div>
+                                                <div className="flex flex-col py-1 sm:w-2/3">
+                                                    <div className="py-1">{business.registration_type}</div>
+                                                </div>
+                                                <div className="flex flex-col py-1 sm:w-1/3">
+                                                    <div className="py-1 font-semibold text-gray-700">Registration Level:</div>
+                                                </div>
+                                                <div className="flex flex-col py-1 sm:w-2/3">
+                                                    <div className="py-1">{business.registration_level}{business.district}</div>
+                                                </div>
+                                                <div className="flex flex-col py-1 sm:w-1/3">
+                                                    <div className="py-1 font-semibold text-gray-700">Existing Registration ID:</div>
+                                                </div>
+                                                <div className="flex flex-col py-1 sm:w-2/3">
+                                                    <div className="py-1">{business.exist_reg_id}</div>
+                                                </div>
+                                                <div className="flex flex-col py-1 sm:w-1/3">
+                                                    <div className="py-1 font-semibold text-gray-700">Business Type:</div>
+                                                </div>
+                                                <div className="flex flex-col py-1 sm:w-2/3">
+                                                    <div className="py-1">{business.type}</div>
+                                                </div>
 
-                                            <div className="flex flex-col py-1 sm:w-1/3">
-                                                <div className="py-1 font-semibold text-gray-700"> Address:</div>
-                                            </div>
-                                            <div className="flex flex-col py-1 sm:w-2/3">
-                                                <div className="py-1">{[business.address_street, business.addressCity, business.address_state, business.address_zip, business.address_country].filter(Boolean).join(", ")}</div>
-                                            </div>
+                                                <div className="flex flex-col py-1 sm:w-1/3">
+                                                    <div className="py-1 font-semibold text-gray-700"> Address:</div>
+                                                </div>
+                                                <div className="flex flex-col py-1 sm:w-2/3">
+                                                    <div className="py-1">{[business.address_street, business.addressCity, business.address_state, business.address_zip, business.address_country].filter(Boolean).join(", ")}</div>
+                                                </div>
 
-                                            <div className="flex flex-col py-1 sm:w-1/3">
-                                                <div className="py-1 font-semibold text-gray-700"> Phone:</div>
-                                            </div>
-                                            <div className="flex flex-col py-1 sm:w-2/3">
-                                                <div className="py-1">{business.phone}</div>
-                                            </div>
-                                           
-                                            <div className="flex flex-col py-1 sm:w-1/3">
-                                                <div className="py-1 font-semibold text-gray-700"> Email:</div>
-                                            </div>
-                                            <div className="flex flex-col py-1 sm:w-2/3">
-                                                <div className="py-1">{business.email}</div>
+                                                <div className="flex flex-col py-1 sm:w-1/3">
+                                                    <div className="py-1 font-semibold text-gray-700"> Phone:</div>
+                                                </div>
+                                                <div className="flex flex-col py-1 sm:w-2/3">
+                                                    <div className="py-1">{business.phone}</div>
+                                                </div>
+                                            
+                                                <div className="flex flex-col py-1 sm:w-1/3">
+                                                    <div className="py-1 font-semibold text-gray-700"> Email:</div>
+                                                </div>
+                                                <div className="flex flex-col py-1 sm:w-2/3">
+                                                    <div className="py-1">{business.email}</div>
+                                                </div>
                                             </div>
                                             
                                             {/* Shareholder */}
-                                            <div className="flex flex-col py-1 sm:w-1/3">
-                                                <div className="py-1 font-semibold text-gray-700">Shareholders List:</div>
-                                            </div>
-                                            <div className="flex flex-col py-1 sm:w-2/3">
-                                                {business.shareholderslist ? business.shareholderslist.map((shareholder, index) => (
-                                                <div key={index} className="col-span-1 py-1">
-                                                    {shareholder.name} - {shareholder.percentage} % {' '}
+                                            {business.shareholderslist && (
+                                                <div className="grid grid-cols-2 text-sm">
+                                                    <div className="col-span-2 py-4 font-semibold text-gray-800 border-b-2 border-gray-300">Shareholders Information</div>
+                                                    <div className="flex flex-col py-1 sm:w-1/3">
+                                                        <div className="py-1 font-semibold text-gray-700">Shareholders List:</div>
+                                                    </div>
+                                                    <div className="flex flex-col py-1 sm:w-2/3">
+                                                        {business.shareholderslist.map((shareholder, index) => (
+                                                            <div key={index} className="col-span-1 py-1">
+                                                                {shareholder.name} - {shareholder.percentage} %
+                                                            </div>
+                                                        ))}
+                                                    </div>
                                                 </div>
-                                                )) : null}
-                                            </div>
+                                            )}
                                             
                                             {/* Additional */}
                                             {business.business_additional ? business.business_additional.map((additional, index) => (
-                                            <div key={index}>
+                                            <div key={index} className="grid grid-cols-2 text-sm">
+                                                <div className="col-span-2 py-4 font-semibold text-gray-800 border-b-2 border-gray-300">Business Additional Information</div>
                                                 <div className="flex flex-col py-1 sm:w-1/3">
                                                     <div className="py-1 font-semibold text-gray-700">building_used:</div>
                                                 </div>
@@ -599,7 +620,8 @@ export default function UserProfile( { session } ) {
                                             )) : null}
                                             {/* Applicant */}
                                             {business.business_applicant ? business.business_applicant.map((applicant, index) => (
-                                            <div key={index}>
+                                            <div key={index} className="grid grid-cols-2 text-sm">
+                                                <div className="col-span-2 py-4 font-semibold text-gray-800 border-b-2 border-gray-300">Applicant Information</div>
                                                 <div className="flex flex-col py-1 sm:w-1/3">
                                                     <div className="py-1 font-semibold text-gray-700">name:</div>
                                                 </div>
@@ -638,14 +660,13 @@ export default function UserProfile( { session } ) {
                                                 <div className="flex flex-col py-1 sm:w-2/3">
                                                     <div className="py-1">{applicant.email}</div>
                                                 </div>
-                                                <div className="flex items-center py-1">
-                                                    <div className="flex-shrink-0">
+                                                <div className="flex flex-col py-1 sm:w-1/">
+                                                    <div className="py-1 font-semibold text-gray-700">
                                                         <p>Signature:</p>
                                                     </div>
-                                                    <div className="flex-shrink-0 ml-4">
-                                                        <img src={applicant.signature} alt="Signature" onClick={() => handleViewSignature(applicant.signature)} style={{ cursor: 'pointer', maxWidth: '100%', maxHeight: '200px' }} />
-                                                    </div>
-
+                                                </div>
+                                                <div className="flex flex-col py-1 sm:w-2/3">
+                                                    <img src={applicant.signature} alt="Signature" onClick={() => handleViewSignature(applicant.signature)} style={{ cursor: 'pointer', maxWidth: '100%', maxHeight: '200px' }} />
                                                 </div>
                                             </div>
                                             )) : null}
@@ -655,15 +676,16 @@ export default function UserProfile( { session } ) {
                                         <>
                                             {/* Owner */}
                                             {business.business_owner ? business.business_owner.map((owner, index) => (
-                                            <div key={index}>
-                                                <div  className="flex flex-col py-1 sm:w-1/3">
-                                                    <div className="py-1 font-semibold text-gray-700">owner_name_mm:</div>
+                                            <div key={index} className="grid grid-cols-2 text-sm">
+                                                <div className="col-span-2 py-4 font-semibold text-gray-800 border-b-2 border-gray-300">Business Owner Information</div>
+                                                <div className="col-span-1">
+                                                    <div className="py-1 font-semibold text-gray-700">owner name_mm:</div>
                                                 </div>
-                                                <div className="flex flex-col py-1 sm:w-2/3">
+                                                <div className="col-span-1">
                                                     <div className="py-1">{owner.owner_name_mm}</div>
                                                 </div>
                                                 <div className="flex flex-col py-1 sm:w-1/3">
-                                                    <div className="py-1 font-semibold text-gray-700">owner_name_eng:</div>
+                                                    <div className="py-1 font-semibold text-gray-700">owner name_eng:</div>
                                                 </div>
                                                 <div className="flex flex-col py-1 sm:w-2/3">
                                                     <div className="py-1">{owner.owner_name_eng}</div>
@@ -686,32 +708,28 @@ export default function UserProfile( { session } ) {
                                                 <div className="flex flex-col py-1 sm:w-2/3">
                                                     <div className="py-1">{[owner.address_street, owner.addressCity, owner.address_state, owner.address_zip, owner.address_country].filter(Boolean).join(", ")}</div>
                                                 </div>
-                                                <div className="flex flex-col py-1 sm:w-1/3">
-                                                    <div className="py-1 font-semibold text-gray-700">Phone:</div>
-                                                </div>
-                                                <div className="flex flex-col py-1 sm:w-2/3">
-                                                    <div className="py-1">{owner.phone}</div>
-                                                </div>
-                                            
-                                                <div className="flex flex-col py-1 sm:w-1/3">
-                                                    <div className="py-1 font-semibold text-gray-700">Email:</div>
-                                                </div>
-                                                <div className="flex flex-col py-1 sm:w-2/3">
-                                                    <div className="py-1">{owner.email}</div>
-                                                </div>
                                             </div>
+                                            
                                             )) : null}
                                         </>
                                         )}
                                         <div className="col-span-2 py-4 text-center">
-                                            <button
-                                            className="font-semibold text-blue-900"
-                                            onClick={toggleShowAllBusiness}
-                                            >
-                                            {showAllBusiness ? 'Less' : 'More'}
+                                            <button className="flex items-center font-semibold text-blue-900" onClick={toggleShowAllBusiness}>
+                                                {showAllBusiness ? (
+                                                <>
+                                                    <span>Show less</span>
+                                                    <ChevronUp className="ml-2" />
+                                                </>
+                                                ) : (
+                                                <>
+                                                    <span>Show more</span>
+                                                    <ChevronDown className="ml-2" />
+                                                </>
+                                                )}
                                             </button>
                                         </div>
-                                    </div>
+                                        
+                                    
                                 </div>
                                 <div className="flex flex-col items-center justify-center p-4 bg-gray-100 rounded-md sm:col-span-1">
                                     <div className="flex items-center justify-center w-20 h-8">
