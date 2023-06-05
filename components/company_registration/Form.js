@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useRouter } from 'next/router';
-import Select from 'react-select';
+// import Select from 'react-select';
 import { v4 as uuidv4 } from 'uuid';
 
 

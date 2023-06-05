@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Layout from '../../components/layout/Layout';
-import CounterUp from "../../components/elements/Counterup"
+// import CounterUp from "../../components/elements/Counterup"
 import Form from '../../components/business_registration/Form';
 import { useRouter } from 'next/router';
 import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
@@ -10,11 +10,14 @@ const BusinessRegistration = () => {
     const supabase = useSupabaseClient();
     const user = useUser();
     
-    if (!user) {
-        // redirect to registration page if user is not registered
-        router.push('/signup');
-        return;
-    }
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            if (!user) {
+                router.push('/signup');
+                return;
+            }
+        }
+    }, [user, router]);
     
     return (
         <>
